@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
@@ -63,7 +62,6 @@ export default function AdminPortal({
   const [authLoading, setAuthLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
   const [submittingAuth, setSubmittingAuth] = useState(false);
@@ -214,7 +212,7 @@ export default function AdminPortal({
     }));
   };
 
-  // Handle Login & Registration
+  // Handle Login
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -222,16 +220,7 @@ export default function AdminPortal({
     setSubmittingAuth(true);
 
     try {
-      if (authMode === 'login') {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-        setAuthSuccess(
-          lang === 'de'
-            ? 'Neues Admin-Konto erfolgreich erstellt!'
-            : 'New admin account successfully created!'
-        );
-      }
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
       console.error('Firebase Auth Error:', err);
       let msg = err.message || 'Authentifizierungsfehler aufgetreten.';
@@ -486,34 +475,6 @@ export default function AdminPortal({
             </p>
           </div>
 
-          {/* Mode Tabs */}
-          <div className="flex border-b border-white/10 mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('login');
-                setAuthError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-display uppercase tracking-wider font-semibold transition-colors border-b-2 ${
-                authMode === 'login' ? 'border-[#DEA43E] text-[#DEA43E]' : 'border-transparent text-white/50 hover:text-white'
-              }`}
-            >
-              {lang === 'de' ? 'Anmelden' : 'Sign In'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('register');
-                setAuthError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-display uppercase tracking-wider font-semibold transition-colors border-b-2 ${
-                authMode === 'register' ? 'border-[#DEA43E] text-[#DEA43E]' : 'border-transparent text-white/50 hover:text-white'
-              }`}
-            >
-              {lang === 'de' ? 'Neuer Admin' : 'New Admin'}
-            </button>
-          </div>
-
           {/* Alert Messages */}
           {authError && (
             <div className="mb-5 p-3.5 bg-rose-950/70 border border-rose-500/40 rounded-[2px] text-xs text-rose-300 leading-relaxed">
@@ -547,15 +508,13 @@ export default function AdminPortal({
                 <label className="block text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] font-semibold">
                   {lang === 'de' ? 'Passwort' : 'Password'}
                 </label>
-                {authMode === 'login' && (
-                  <button
-                    type="button"
-                    onClick={handlePasswordReset}
-                    className="text-[10px] text-white/50 hover:text-[#DEA43E] transition-colors"
-                  >
-                    {lang === 'de' ? 'Passwort vergessen?' : 'Forgot password?'}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  className="text-[10px] text-white/50 hover:text-[#DEA43E] transition-colors"
+                >
+                  {lang === 'de' ? 'Passwort vergessen?' : 'Forgot password?'}
+                </button>
               </div>
               <input
                 type="password"
@@ -578,15 +537,7 @@ export default function AdminPortal({
                   <span>{lang === 'de' ? 'Verarbeite...' : 'Processing...'}</span>
                 </>
               ) : (
-                <span>
-                  {authMode === 'login'
-                    ? lang === 'de'
-                      ? 'Im Portal anmelden'
-                      : 'Sign in to Portal'
-                    : lang === 'de'
-                    ? 'Admin-Konto registrieren'
-                    : 'Register Admin Account'}
-                </span>
+                <span>{lang === 'de' ? 'Im Portal anmelden' : 'Sign in to Portal'}</span>
               )}
             </button>
           </form>
