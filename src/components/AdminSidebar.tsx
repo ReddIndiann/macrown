@@ -108,8 +108,8 @@ export default function AdminSidebar({
     },
     {
       id: 'settings' as AdminTab,
-      labelDe: 'Firebase & Cloud',
-      labelEn: 'Firebase & Cloud',
+      labelDe: 'Cloud & DMS',
+      labelEn: 'Cloud & DMS',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -126,8 +126,8 @@ export default function AdminSidebar({
           />
         </svg>
       ),
-      badge: 'macrown-13e95',
-      badgeColor: 'bg-white/5 text-[#DEA43E] font-mono text-[9px]',
+      badge: 'Cloudinary (Free)',
+      badgeColor: 'bg-emerald-950 text-emerald-400 font-mono text-[9px] border border-emerald-600/40',
     },
   ];
 

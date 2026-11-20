@@ -6,8 +6,8 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { auth, storage } from '../firebase';
+import { auth } from '../firebase';
+import { uploadToCloudinary } from '../cloudinary';
 import type { Product, ProductDocument, Lang } from '../data';
 import AdminSidebar, { type AdminTab } from './AdminSidebar';
 
@@ -119,162 +119,39 @@ export default function AdminPortal({
     return () => unsubscribe();
   }, []);
 
-  // Upload helper with client compression, Firebase Storage & instant fallback
-  const readFileAsDataUrl = (file: File | Blob): Promise<{ url: string; size: number }> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve({ url: (e.target?.result as string) || '', size: file.size });
-      reader.onerror = () => resolve({ url: '', size: file.size });
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const optimizeImageForUpload = async (file: File): Promise<File> => {
-    if (!file.type.startsWith('image/')) return file;
-    return new Promise((resolve) => {
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(objectUrl);
-        const maxWidth = 1600;
-        let { width, height } = img;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(file);
-          return;
-        }
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob && blob.size < file.size) {
-              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
-            } else {
-              resolve(file);
-            }
-          },
-          'image/jpeg',
-          0.86
-        );
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
-        resolve(file);
-      };
-      img.src = objectUrl;
-    });
-  };
-
+  // Upload helper with Cloudinary Free Media & Document Management Service (DMS)
   const uploadFileToStorage = async (file: File, folder: 'images' | 'documents'): Promise<{ url: string; size: number }> => {
-    // 1. Client-side optimization for photos to keep storage light
-    const processedFile = folder === 'images' ? await optimizeImageForUpload(file) : file;
-
-    // 2. If user is in Demo Bypass mode or not authenticated via Firebase, immediately embed as Data URL with 0ms delay
-    if (!currentUser) {
-      setUploadProgress(100);
-      return readFileAsDataUrl(processedFile);
-    }
-
-    // 3. Attempt direct Firebase Storage with fast fallback if CORS or security rules reject the upload
     try {
-      const cleanName = processedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const storageRef = ref(storage, `${folder}/${Date.now()}_${cleanName}`);
-      const uploadTask = uploadBytesResumable(storageRef, processedFile);
-
-      return await new Promise((resolve) => {
-        let isSettled = false;
-
-        // Fallback timer: if blocked by CORS preflight, abort and instantly use embedded file
-        const timer = setTimeout(async () => {
-          if (!isSettled) {
-            isSettled = true;
-            try {
-              uploadTask.cancel();
-            } catch {
-              // ignore
-            }
-            console.warn('Firebase Storage upload timed out / CORS blocked. Using instant embedded data.');
-            const fallback = await readFileAsDataUrl(processedFile);
-            resolve(fallback);
-          }
-        }, 2200);
-
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const prog = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            setUploadProgress(prog);
-          },
-          async (err) => {
-            if (!isSettled) {
-              isSettled = true;
-              clearTimeout(timer);
-              console.warn('Firebase Storage notice (CORS or rules fallback):', err.message);
-              const fallback = await readFileAsDataUrl(processedFile);
-              resolve(fallback);
-            }
-          },
-          async () => {
-            if (!isSettled) {
-              isSettled = true;
-              clearTimeout(timer);
-              try {
-                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                resolve({ url: downloadUrl, size: processedFile.size });
-              } catch {
-                const fallback = await readFileAsDataUrl(processedFile);
-                resolve(fallback);
-              }
-            }
-          }
-        );
+      const res = await uploadToCloudinary(file, folder, (percent) => {
+        setUploadProgress(percent);
       });
-    } catch {
-      return readFileAsDataUrl(processedFile);
+      return { url: res.url, size: res.size };
+    } catch (err: any) {
+      console.warn('Cloudinary upload notice:', err.message);
+      // Local Base64 fallback if network/offline
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve({ url: e.target?.result as string, size: file.size });
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  // Handle Primary Image File selection
+  // Handle Image File selection
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingImage(true);
-    setUploadProgress(15);
+    setUploadProgress(10);
     try {
       const res = await uploadFileToStorage(file, 'images');
       setFormData((prev) => ({ ...prev, image: res.url }));
     } catch (err: any) {
-      alert(lang === 'de' ? 'Fehler beim Laden des Bildes: ' + err.message : 'Error loading image: ' + err.message);
+      alert(lang === 'de' ? 'Fehler beim Hochladen des Bildes: ' + err.message : 'Error uploading image: ' + err.message);
     } finally {
       setUploadingImage(false);
       setUploadProgress(null);
-      e.target.value = '';
-    }
-  };
-
-  // Handle Hover Image File selection
-  const handleHoverImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    setUploadProgress(15);
-    try {
-      const res = await uploadFileToStorage(file, 'images');
-      setFormData((prev) => ({ ...prev, hoverImage: res.url }));
-    } catch (err: any) {
-      alert(lang === 'de' ? 'Fehler beim Laden des Bildes: ' + err.message : 'Error loading image: ' + err.message);
-    } finally {
-      setUploadingImage(false);
-      setUploadProgress(null);
-      e.target.value = '';
     }
   };
 
@@ -1266,18 +1143,23 @@ export default function AdminPortal({
         {activeTab === 'settings' && (
           <div className="space-y-6">
             <div className="bg-white border border-[#E8E6E1] rounded-[2px] p-6 shadow-xs">
-              <h3 className="font-serif text-lg text-[#0D0D0D] mb-4">
-                {lang === 'de' ? 'Firebase Cloud Infrastruktur' : 'Firebase Cloud Infrastructure'}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif text-lg text-[#0D0D0D]">
+                  {lang === 'de' ? 'Cloud & DMS Infrastruktur (100% Kostenlos)' : 'Cloud & DMS Infrastructure (100% Free)'}
+                </h3>
+                <span className="text-[10px] font-display uppercase tracking-widest font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-[1px] border border-emerald-300">
+                  {lang === 'de' ? 'Kein Blaze Plan / 0 € Kosten' : 'No Blaze Plan / Zero Cost'}
+                </span>
+              </div>
 
               <div className="space-y-3 font-mono text-xs">
                 <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
-                  <span className="text-[#666666]">Project ID:</span>
-                  <span className="font-bold text-[#0D0D0D]">macrown-13e95</span>
+                  <span className="text-[#666666]">DMS File & Doc Storage:</span>
+                  <span className="font-bold text-emerald-700">Cloudinary (babzu5oi · 25 GB Free CDN)</span>
                 </div>
                 <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
-                  <span className="text-[#666666]">Storage Bucket:</span>
-                  <span className="font-bold text-[#0D0D0D]">macrown-13e95.firebasestorage.app</span>
+                  <span className="text-[#666666]">Admin Authentication:</span>
+                  <span className="font-bold text-[#0D0D0D]">Firebase Auth (Spark Free Plan · macrown-13e95)</span>
                 </div>
                 <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
                   <span className="text-[#666666]">Auth Domain:</span>
@@ -1287,27 +1169,6 @@ export default function AdminPortal({
                   <span className="text-[#666666]">Current Admin Session:</span>
                   <span className="font-bold text-emerald-600">{currentUser?.email || 'admin@macrown.org (Demo Bypass)'}</span>
                 </div>
-              </div>
-
-              {/* CORS & Storage Configuration Card */}
-              <div className="mt-6 p-4 bg-[#FDF9F0] border border-[#DEA43E]/40 rounded-[2px] text-xs space-y-2">
-                <div className="flex items-center gap-2 font-display uppercase tracking-wider text-[#9E6F1E] font-bold">
-                  <span>⚡</span>
-                  <span>{lang === 'de' ? 'Firebase Storage CORS Konfiguration' : 'Firebase Storage CORS Configuration'}</span>
-                </div>
-                <p className="text-[#666666] leading-relaxed">
-                  {lang === 'de'
-                    ? 'Wenn du Fotos oder Dokumente von localhost:5173 direkt in Google Cloud Storage hochladen möchtest, aktiviere CORS einmalig mit der im Projekt erstellten Datei cors.json:'
-                    : 'To allow direct browser uploads from localhost:5173 to Google Cloud Storage, apply the project cors.json file once via gsutil:'}
-                </p>
-                <div className="bg-[#1C1C1C] text-[#DEA43E] p-2.5 rounded-[1px] font-mono text-[11px] overflow-x-auto select-all">
-                  gsutil cors set cors.json gs://macrown-13e95.firebasestorage.app
-                </div>
-                <p className="text-[11px] text-[#7A7A7A] italic">
-                  {lang === 'de'
-                    ? 'Hinweis: Wenn CORS nicht gesetzt ist, schaltet das Atelier automatisch auf blitzschnelle lokale Daten-Einbettung um, sodass der Upload immer sofort funktioniert!'
-                    : 'Note: If CORS is not yet set, the Atelier automatically falls back to instant local embedded data so your uploads never stall!'}
-                </p>
               </div>
 
               <div className="mt-6 pt-5 border-t border-[#E8E6E1] flex gap-3">
@@ -1553,49 +1414,6 @@ export default function AdminPortal({
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="https://www.macrown.org/wp-content/uploads/2025/01/MRDC2196.jpg"
-                  className="w-full bg-white border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
-                />
-              </div>
-
-              {/* Hover Image (Secondary Model View) */}
-              <div className="p-4 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-display uppercase tracking-wider text-[#0D0D0D] font-bold">
-                    {lang === 'de' ? 'Zweites Foto (Hover-Ansicht, optional)' : 'Secondary Photo (Hover View, optional)'}
-                  </label>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {formData.hoverImage && (
-                    <img
-                      src={formData.hoverImage}
-                      alt="Hover Preview"
-                      className="w-14 h-16 object-cover rounded-[1px] border border-[#E8E6E1] bg-white shrink-0"
-                    />
-                  )}
-
-                  <label className="cursor-pointer px-3.5 py-2 bg-white hover:bg-neutral-50 border border-[#E8E6E1] text-[#0D0D0D] text-[11px] font-display uppercase tracking-wider font-semibold rounded-[2px] transition-colors inline-flex items-center gap-2 shadow-xs">
-                    <svg className="w-4 h-4 text-[#7A7A7A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                    <span>{lang === 'de' ? 'Hover-Foto wählen' : 'Select Hover Photo'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleHoverImageFileChange}
-                      disabled={uploadingImage}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <span className="text-xs text-[#7A7A7A]">{lang === 'de' ? 'oder URL:' : 'or URL:'}</span>
-                </div>
-
-                <input
-                  type="url"
-                  value={formData.hoverImage}
-                  onChange={(e) => setFormData({ ...formData, hoverImage: e.target.value })}
-                  placeholder="https://www.macrown.org/wp-content/uploads/2025/01/MRDC2245.jpg"
                   className="w-full bg-white border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
                 />
               </div>
