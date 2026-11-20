@@ -8,9 +8,19 @@ interface NavbarProps {
   setLang: (lng: Lang) => void;
   cartCount: number;
   onOpenCart: () => void;
+  currentPage?: 'home' | 'shop';
+  onNavigate?: (page: 'home' | 'shop') => void;
 }
 
-export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: NavbarProps) {
+export default function Navbar({
+  lang,
+  t,
+  setLang,
+  cartCount,
+  onOpenCart,
+  currentPage = 'home',
+  onNavigate,
+}: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Lock background scroll when mobile drawer is open
@@ -135,7 +145,13 @@ export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: Navb
 
               {/* Desktop Logo & Wordmark */}
               <div className="hidden lg:flex items-center">
-                <a href="#" className="flex items-center gap-3.5 group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onNavigate) onNavigate('home');
+                  }}
+                  className="flex items-center gap-3.5 group cursor-pointer text-left"
+                >
                   <img
                     src="https://www.macrown.org/wp-content/uploads/2025/01/logo-dark-3.png"
                     alt="Macrown Hair Logo"
@@ -152,14 +168,20 @@ export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: Navb
                       HAIR ATELIER
                     </span>
                   </div>
-                </a>
+                </button>
               </div>
             </div>
 
             {/* CENTER SECTION */}
             {/* Mobile / Tablet Centered Logo */}
             <div className="flex lg:hidden flex-1 justify-center items-center">
-              <a href="#" className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onNavigate) onNavigate('home');
+                }}
+                className="flex items-center gap-2.5 cursor-pointer text-left"
+              >
                 <img
                   src="https://www.macrown.org/wp-content/uploads/2025/01/logo-dark-3.png"
                   alt="Macrown Hair Logo"
@@ -176,23 +198,47 @@ export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: Navb
                     HAIR ATELIER
                   </span>
                 </div>
-              </a>
+              </button>
             </div>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-7 xl:space-x-9 text-xs font-display uppercase tracking-[0.2em] text-[#1E1E1E] font-medium">
-              <a href="#hero" className="hover:text-[#DEA43E] transition-colors py-1 relative group">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onNavigate) onNavigate('home');
+                }}
+                className={`transition-colors py-1 relative group cursor-pointer ${
+                  currentPage === 'home' ? 'text-[#DEA43E] font-bold' : 'hover:text-[#DEA43E]'
+                }`}
+              >
                 {t.nav.home}
-                <span className="absolute bottom-0 left-0 w-0 h-px bg-[#DEA43E] transition-all duration-300 group-hover:w-full" />
-              </a>
+                <span
+                  className={`absolute bottom-0 left-0 h-px bg-[#DEA43E] transition-all duration-300 ${
+                    currentPage === 'home' ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+                />
+              </button>
               <a href="#categories" className="hover:text-[#DEA43E] transition-colors py-1 relative group">
                 {t.nav.categories}
                 <span className="absolute bottom-0 left-0 w-0 h-px bg-[#DEA43E] transition-all duration-300 group-hover:w-full" />
               </a>
-              <a href="#shop" className="hover:text-[#DEA43E] transition-colors py-1 relative group">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onNavigate) onNavigate('shop');
+                }}
+                className={`transition-colors py-1 relative group cursor-pointer ${
+                  currentPage === 'shop' ? 'text-[#DEA43E] font-bold' : 'hover:text-[#DEA43E]'
+                }`}
+              >
                 {t.nav.shop}
-                <span className="absolute bottom-0 left-0 w-0 h-px bg-[#DEA43E] transition-all duration-300 group-hover:w-full" />
-              </a>
+                <span
+                  className={`absolute bottom-0 left-0 h-px bg-[#DEA43E] transition-all duration-300 ${
+                    currentPage === 'shop' ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+                />
+              </button>
               <a href="#guide" className="hover:text-[#DEA43E] transition-colors py-1 flex items-center gap-1.5 relative group">
                 <span>{t.nav.guide}</span>
                 <span className="text-[8.5px] bg-[#FDF9F0] text-[#9E6F1E] border border-[#DEA43E]/40 px-1.5 py-0.2 rounded-xs uppercase tracking-wider font-bold">
@@ -292,9 +338,9 @@ export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: Navb
                   {lang === 'de' ? 'NAVIGATION' : 'NAVIGATION'}
                 </span>
                 {[
-                  { href: '#hero', label: t.nav.home },
+                  { id: 'home', href: '#hero', label: t.nav.home },
+                  { id: 'shop', href: '#shop', label: t.nav.shop },
                   { href: '#categories', label: t.nav.categories },
-                  { href: '#shop', label: t.nav.shop },
                   { href: '#guide', label: t.nav.guide, badge: 'Expertise' },
                   { href: '#testimonials', label: lang === 'de' ? 'Referenzen' : 'Reviews' },
                   { href: '#faq', label: 'FAQs' },
@@ -302,8 +348,17 @@ export default function Navbar({ lang, t, setLang, cartCount, onOpenCart }: Navb
                   <a
                     key={idx}
                     href={item.href}
-                    onClick={closeMenu}
-                    className="flex items-center justify-between py-2 text-xl font-serif text-[#0D0D0D] hover:text-[#DEA43E] transition-colors border-b border-[#F0EEE9]"
+                    onClick={() => {
+                      closeMenu();
+                      if (item.id && onNavigate) {
+                        onNavigate(item.id as 'home' | 'shop');
+                      }
+                    }}
+                    className={`flex items-center justify-between py-2 text-xl font-serif transition-colors border-b border-[#F0EEE9] ${
+                      (item.id === 'home' && currentPage === 'home') || (item.id === 'shop' && currentPage === 'shop')
+                        ? 'text-[#DEA43E] font-medium'
+                        : 'text-[#0D0D0D] hover:text-[#DEA43E]'
+                    }`}
                   >
                     <span>{item.label}</span>
                     {item.badge ? (

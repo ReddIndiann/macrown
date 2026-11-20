@@ -10,6 +10,7 @@ import { Testimonials, FAQ, ConsultationBanner, Footer } from './components/Sect
 import CartDrawer from './components/CartDrawer';
 import type { CartItem } from './components/CartDrawer';
 import AdminPortal from './components/AdminPortal';
+import ShopPage from './components/ShopPage';
 
 export default function App() {
   const [lang, setLangState] = useState<Lang>(() => {
@@ -64,16 +65,40 @@ export default function App() {
     return false;
   });
 
+  // Current page state ('home' vs 'shop')
+  const [currentPage, setCurrentPage] = useState<'home' | 'shop'>(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hash === '#shop' || window.location.pathname === '/shop') {
+        return 'shop';
+      }
+    }
+    return 'home';
+  });
+
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
       if (window.location.hash === '#admin') {
         setIsAdminView(true);
+      } else {
+        setIsAdminView(false);
+        if (window.location.hash === '#shop') {
+          setCurrentPage('shop');
+        } else {
+          setCurrentPage('home');
+        }
       }
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  const navigateTo = (page: 'home' | 'shop') => {
+    setIsAdminView(false);
+    setCurrentPage(page);
+    window.location.hash = page === 'home' ? '#home' : '#shop';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleUpdateProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
@@ -172,9 +197,15 @@ export default function App() {
 
   const handleSelectCategory = (catId: string) => {
     setActiveCategory(catId);
-    const shopElement = document.getElementById('shop');
-    if (shopElement) {
-      shopElement.scrollIntoView({ behavior: 'smooth' });
+    if (currentPage === 'shop') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const shopElement = document.getElementById('shop');
+      if (shopElement) {
+        shopElement.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigateTo('shop');
+      }
     }
   };
 
@@ -202,33 +233,50 @@ export default function App() {
         setLang={setLang}
         cartCount={totalCartCount}
         onOpenCart={() => setIsCartOpen(true)}
+        currentPage={currentPage}
+        onNavigate={navigateTo}
       />
 
       <main>
-        <Hero lang={lang} t={t} />
+        {currentPage === 'shop' ? (
+          <ShopPage
+            products={products}
+            lang={lang}
+            onAddToCart={handleAddToCart}
+            onNavigateHome={() => navigateTo('home')}
+          />
+        ) : (
+          <>
+            <Hero
+              lang={lang}
+              t={t}
+              onNavigateShop={() => navigateTo('shop')}
+            />
 
-        <Categories
-          lang={lang}
-          t={t}
-          onSelectCategory={handleSelectCategory}
-        />
+            <Categories
+              lang={lang}
+              t={t}
+              onSelectCategory={handleSelectCategory}
+            />
 
-        <ProductGrid
-          products={products}
-          lang={lang}
-          t={t}
-          activeCategory={activeCategory}
-          onSelectCategory={setActiveCategory}
-          onAddToCart={handleAddToCart}
-        />
+            <ProductGrid
+              products={products}
+              lang={lang}
+              t={t}
+              activeCategory={activeCategory}
+              onSelectCategory={setActiveCategory}
+              onAddToCart={handleAddToCart}
+            />
 
-        <HairGuide lang={lang} t={t} />
+            <HairGuide lang={lang} t={t} />
 
-        <ConsultationBanner t={t} />
+            <ConsultationBanner t={t} />
 
-        <Testimonials t={t} />
+            <Testimonials t={t} />
 
-        <FAQ t={t} />
+            <FAQ t={t} />
+          </>
+        )}
       </main>
 
       <Footer
