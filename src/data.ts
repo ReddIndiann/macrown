@@ -1,5 +1,12 @@
 export type Lang = 'de' | 'en';
 
+export interface ProductDocument {
+  name: string;
+  url: string;
+  type?: 'pdf' | 'doc' | 'image' | 'certificate';
+  sizeBytes?: number;
+}
+
 export interface Product {
   id: string;
   name: { de: string; en: string };
@@ -19,6 +26,7 @@ export interface Product {
   description: { de: string; en: string };
   stockStatus?: 'in_stock' | 'low_stock' | 'out_of_stock';
   stockQuantity?: number;
+  documents?: ProductDocument[];
 }
 
 export const PRODUCTS: Product[] = [
@@ -39,6 +47,16 @@ export const PRODUCTS: Product[] = [
     hairType: 'Virgin Hair',
     laceType: '13x6 Melt HD Lace',
     rating: 5.0,
+    stockStatus: 'in_stock',
+    stockQuantity: 14,
+    documents: [
+      {
+        name: 'Echtheitszertifikat-100%-Rohhaar.pdf',
+        url: 'https://www.macrown.org',
+        type: 'certificate',
+        sizeBytes: 1240000,
+      },
+    ],
     reviews: 28,
     badge: { de: 'Flagship Kollektion', en: 'Flagship Collection' },
     description: {

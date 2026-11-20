@@ -103,9 +103,32 @@ export default function ProductCard({ product, lang, t, onAddToCart }: ProductCa
           </h3>
 
           {/* Description */}
-          <p className="font-sans text-xs text-[#666666] line-clamp-2 font-light leading-relaxed mb-4">
+          <p className="font-sans text-xs text-[#666666] line-clamp-2 font-light leading-relaxed mb-3">
             {product.description[lang]}
           </p>
+
+          {/* Attached Certificates / Documents */}
+          {product.documents && product.documents.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {product.documents.map((doc, idx) => (
+                <a
+                  key={idx}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1.5 text-[9px] font-display uppercase tracking-wider text-[#9E6F1E] bg-[#FDF9F0] border border-[#DEA43E]/40 px-2 py-1 rounded-[1px] hover:border-[#DEA43E] hover:bg-[#F8EFE0] transition-colors group/doc"
+                  title={doc.name}
+                >
+                  <span className="text-xs">📜</span>
+                  <span className="truncate max-w-[150px] font-semibold">{doc.name}</span>
+                  <svg className="w-2.5 h-2.5 opacity-60 group-hover/doc:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
