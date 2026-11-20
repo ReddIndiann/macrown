@@ -32,8 +32,8 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
     {
       id: 0,
       type: 'video',
-      src: 'https://www.macrown.org/wp-content/uploads/2025/02/slid-rev-1.mp4',
-      poster: 'https://www.macrown.org/wp-content/uploads/revslider/video-media/slid-rev-1_1.jpeg',
+      src: 'https://cdn.coverr.co/videos/coverr-woman-running-her-fingers-through-her-hair-4283/1080p.mp4',
+      poster: 'https://cdn.coverr.co/videos/coverr-woman-running-her-fingers-through-her-hair-4283/thumbnail.jpg',
       eyebrowDe: 'GODFIDENCE PERÜCKEN • ATELIER VIETNAM',
       eyebrowEn: 'GODFIDENCE WIGS • ATELIER VIETNAM',
       title: 'MACROWN',
