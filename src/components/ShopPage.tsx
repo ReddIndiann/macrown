@@ -116,13 +116,13 @@ export default function ShopPage({
 
           {/* Heading */}
           <div className="max-w-3xl">
-            <span className="text-[10px] sm:text-xs font-display tracking-[0.3em] uppercase text-[#DEA43E] font-semibold block mb-2">
+            <span className="text-[10px] sm:text-xs font-display tracking-[0.3em] uppercase text-[#DEA43E] font-semibold block mb-2 drop-shadow-sm">
               {lang === 'de' ? 'HAUTE COIFFURE KATALOG • 100% ECHTHAAR' : 'HAUTE COIFFURE CATALOG • 100% HUMAN HAIR'}
             </span>
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-normal tracking-[0.03em] leading-tight mb-4">
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl !text-white font-normal tracking-[0.03em] leading-tight mb-4 drop-shadow-md">
               {lang === 'de' ? 'Die Atelier Kollektion' : 'The Atelier Collection'}
             </h1>
-            <p className="font-sans text-xs sm:text-sm text-white/70 font-light leading-relaxed max-w-2xl">
+            <p className="font-sans text-xs sm:text-sm !text-white/90 font-light leading-relaxed max-w-2xl">
               {lang === 'de'
                 ? 'Handverlesenes, 100% chemiefreies Rohhaar & HD-Lace Perücken aus unserer vietnamesischen Partnermanufaktur. Höchste Schuppenschicht-Intaktheit für unvergleichlichen Seidenglanz.'
                 : 'Masterfully curated, 100% non-chemical raw hair and HD lace wigs directly from our atelier in Vietnam. Intact cuticles for incomparable natural silk sheen.'}

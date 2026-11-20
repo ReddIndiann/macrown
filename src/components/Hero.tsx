@@ -144,9 +144,9 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
           </div>
         )}
 
-        {/* Dual Luxury Scrim Overlays for Pristine Legibility & Depth */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-[#0D0D0D]/50 to-[#0D0D0D]/65 pointer-events-none" />
-        <div className="absolute inset-0 bg-radial from-transparent via-[#0D0D0D]/30 to-[#0D0D0D]/75 pointer-events-none" />
+        {/* Luxury Cinema Scrim Overlays for Pristine Legibility & Depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-black/45 to-[#0D0D0D]/70 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/20 pointer-events-none" />
 
         {/* Video Audio/Play Controls (when Slide 0 is active) */}
         {activeSlide.type === 'video' && (
@@ -215,27 +215,27 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
           {/* Eyebrow badge */}
           <div className="inline-flex items-center gap-3 mb-5 sm:mb-6 animate-fade-in">
             <span className="w-6 sm:w-10 h-px bg-[#DEA43E]" />
-            <span className="text-[10px] sm:text-xs font-display tracking-[0.32em] text-[#DEA43E] font-semibold uppercase">
+            <span className="text-[10px] sm:text-xs font-display tracking-[0.32em] text-[#DEA43E] font-semibold uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               {lang === 'de' ? activeSlide.eyebrowDe : activeSlide.eyebrowEn}
             </span>
             <span className="w-6 sm:w-10 h-px bg-[#DEA43E]" />
           </div>
 
           {/* Grand Brand Headline */}
-          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] text-white font-normal tracking-[0.06em] leading-[1.04] mb-3 select-none">
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] !text-white font-normal tracking-[0.06em] leading-[1.04] mb-3 select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             {activeSlide.title}
           </h1>
 
           {/* Golden Hairline Divider */}
-          <div className="w-12 h-[2px] bg-[#DEA43E] my-3 sm:my-4" />
+          <div className="w-12 h-[2px] bg-[#DEA43E] my-3 sm:my-4 shadow-sm" />
 
           {/* Tagline */}
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#DEA43E] font-normal italic tracking-wide mb-5">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl !text-[#DEA43E] font-normal italic tracking-wide mb-5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
             „{lang === 'de' ? activeSlide.taglineDe : activeSlide.taglineEn}“
           </h2>
 
           {/* Subtitle description */}
-          <p className="font-sans text-sm sm:text-base md:text-lg text-white/85 max-w-2xl mx-auto font-light leading-relaxed mb-9">
+          <p className="font-sans text-sm sm:text-base md:text-lg !text-white max-w-2xl mx-auto font-normal leading-relaxed mb-9 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
             {lang === 'de' ? activeSlide.subDe : activeSlide.subEn}
           </p>
 
@@ -244,7 +244,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
             <a
               href="#shop"
               onClick={handleShopClick}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-9 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display font-bold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-xl group cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-9 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display font-bold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-[0_6px_24px_rgba(0,0,0,0.5)] group cursor-pointer"
             >
               <span>{t.hero.shopBtn}</span>
               <svg
@@ -259,7 +259,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
 
             <a
               href="#guide"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-black/40 backdrop-blur-md text-white border border-white/40 text-[11px] font-display font-semibold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] hover:border-white transition-all duration-300"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-black/60 backdrop-blur-md text-white border border-white/60 text-[11px] font-display font-semibold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] hover:border-white transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             >
               <span>{t.hero.guideBtn}</span>
             </a>
