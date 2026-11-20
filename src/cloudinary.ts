@@ -95,7 +95,9 @@ export async function uploadToCloudinary(
       reader.readAsDataURL(file);
     };
 
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`);
+    const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg)$/i.test(file.name);
+    const resourceType = isImage ? 'image' : 'raw';
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`);
     xhr.send(formData);
   });
 }
