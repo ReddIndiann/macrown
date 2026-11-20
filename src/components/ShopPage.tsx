@@ -8,6 +8,7 @@ interface ShopPageProps {
   lang: Lang;
   onAddToCart: (product: Product, selectedLength: string) => void;
   onNavigateHome: () => void;
+  initialCategory?: string;
 }
 
 export default function ShopPage({
@@ -15,12 +16,13 @@ export default function ShopPage({
   lang,
   onAddToCart,
   onNavigateHome,
+  initialCategory = 'all',
 }: ShopPageProps) {
   const t = LANG[lang];
 
   // Filters & Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedHairType, setSelectedHairType] = useState<string>('all');
   const [selectedTexture, setSelectedTexture] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');

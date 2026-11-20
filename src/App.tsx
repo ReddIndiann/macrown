@@ -244,6 +244,7 @@ export default function App() {
             lang={lang}
             onAddToCart={handleAddToCart}
             onNavigateHome={() => navigateTo('home')}
+            initialCategory={activeCategory}
           />
         ) : (
           <>
@@ -266,6 +267,7 @@ export default function App() {
               activeCategory={activeCategory}
               onSelectCategory={setActiveCategory}
               onAddToCart={handleAddToCart}
+              onViewMore={() => navigateTo('shop')}
             />
 
             <HairGuide lang={lang} t={t} />

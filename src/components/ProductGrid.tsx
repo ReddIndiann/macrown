@@ -10,6 +10,8 @@ interface ProductGridProps {
   activeCategory: string;
   onSelectCategory: (category: string) => void;
   onAddToCart: (product: Product, length: string) => void;
+  onViewMore?: () => void;
+  previewLimit?: number;
 }
 
 export default function ProductGrid({
@@ -19,6 +21,8 @@ export default function ProductGrid({
   activeCategory,
   onSelectCategory,
   onAddToCart,
+  onViewMore,
+  previewLimit = 4,
 }: ProductGridProps) {
   const [hairTypeFilter, setHairTypeFilter] = useState<'all' | 'Lux Hair' | 'Virgin Hair'>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
@@ -151,17 +155,54 @@ export default function ProductGrid({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                lang={lang}
-                t={t}
-                onAddToCart={onAddToCart}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filtered.slice(0, previewLimit).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  lang={lang}
+                  t={t}
+                  onAddToCart={onAddToCart}
+                />
+              ))}
+            </div>
+
+            {/* View Full Collection / More Button */}
+            {onViewMore && (
+              <div className="mt-14 text-center flex flex-col items-center">
+                <div className="flex items-center gap-2 text-xs text-[#7A7A7A] mb-4 font-display uppercase tracking-widest">
+                  <span className="w-8 h-px bg-[#E8E6E1]" />
+                  <span>
+                    {lang === 'de'
+                      ? `Atelier-Vorschau: ${Math.min(previewLimit, filtered.length)} von ${products.length} Kollektionsstücken`
+                      : `Atelier Preview: ${Math.min(previewLimit, filtered.length)} of ${products.length} Collection Pieces`}
+                  </span>
+                  <span className="w-8 h-px bg-[#E8E6E1]" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onViewMore}
+                  className="inline-flex items-center gap-3 px-10 py-4 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-[0.25em] font-bold rounded-[2px] transition-all duration-300 shadow-md group cursor-pointer"
+                >
+                  <span>
+                    {lang === 'de'
+                      ? `Gesamten Shop ansehen (${products.length} Artikel)`
+                      : `View Full Shop Collection (${products.length} Items)`}
+                  </span>
+                  <svg
+                    className="w-4 h-4 transform transition-transform group-hover:translate-x-1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
