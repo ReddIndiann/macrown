@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "macrown",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -26,5 +26,6 @@
     "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
     "vite": "^8.3.6"
-  }
+  },
+  "description": "Macrown Hair Atelier - Official Website & Inventory Portal"
 }
