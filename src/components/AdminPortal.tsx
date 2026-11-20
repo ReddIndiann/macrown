@@ -15,6 +15,39 @@ interface AdminPortalProps {
   onUpdateProducts: (newProducts: Product[]) => void;
   onExitAdmin: () => void;
   lang: Lang;
+  setLang: (lng: Lang) => void;
+}
+
+function AdminLanguageToggle({ lang, setLang }: { lang: Lang; setLang: (lng: Lang) => void }) {
+  return (
+    <div className="flex items-center bg-[#1A1A1A] border border-white/20 rounded-[2px] p-0.5 select-none">
+      <button
+        type="button"
+        onClick={() => setLang('de')}
+        className={`px-2 py-0.5 text-[10px] font-display font-bold uppercase transition-all rounded-[1px] ${
+          lang === 'de'
+            ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-xs'
+            : 'text-white/60 hover:text-white'
+        }`}
+        aria-label="Deutsch"
+      >
+        DE
+      </button>
+      <span className="text-white/20 text-[9px] px-0.5 select-none">/</span>
+      <button
+        type="button"
+        onClick={() => setLang('en')}
+        className={`px-2 py-0.5 text-[10px] font-display font-bold uppercase transition-all rounded-[1px] ${
+          lang === 'en'
+            ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-xs'
+            : 'text-white/60 hover:text-white'
+        }`}
+        aria-label="English"
+      >
+        EN
+      </button>
+    </div>
+  );
 }
 
 export default function AdminPortal({
@@ -22,6 +55,7 @@ export default function AdminPortal({
   onUpdateProducts,
   onExitAdmin,
   lang,
+  setLang,
 }: AdminPortalProps) {
   // Auth state
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -285,41 +319,46 @@ export default function AdminPortal({
     (acc, p) => acc + p.price * (p.stockQuantity ?? 10),
     0
   );
-  const totalInventoryValueFormatted = (totalInventoryValueCents / 100).toLocaleString('de-DE', {
+  const totalInventoryValueFormatted = (totalInventoryValueCents / 100).toLocaleString(lang === 'de' ? 'de-DE' : 'en-US', {
     style: 'currency',
     currency: 'EUR',
   });
 
   const isAuthenticated = !!currentUser || demoBypass;
 
-  // Render Login Card if not authenticated
+  // Loading Screen
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center p-4">
         <div className="text-center text-[#DEA43E] font-display uppercase tracking-widest text-xs flex items-center gap-3">
           <div className="w-4 h-4 border-2 border-[#DEA43E] border-t-transparent rounded-full animate-spin"></div>
-          <span>Firebase Authentifizierung wird geladen...</span>
+          <span>{lang === 'de' ? 'Firebase Authentifizierung wird geladen...' : 'Loading Firebase authentication...'}</span>
         </div>
       </div>
     );
   }
 
+  // NOT AUTHENTICATED: LOGIN & SIGN-UP SCREEN
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#0D0D0D] flex flex-col justify-center items-center p-4 sm:p-6 text-white relative">
-        {/* Subtle Ambient Gold glow */}
+        {/* Ambient Gold glow */}
         <div className="absolute top-1/4 -z-10 w-96 h-96 bg-[#DEA43E]/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Back to store link */}
+        {/* Top Control Bar with Language Switcher */}
         <div className="w-full max-w-md mb-6 flex justify-between items-center">
           <button
             type="button"
             onClick={onExitAdmin}
             className="text-xs font-display uppercase tracking-widest text-white/70 hover:text-[#DEA43E] transition-colors flex items-center gap-2"
           >
-            <span>← Zurück zum Online-Shop</span>
+            <span>{lang === 'de' ? '← Zurück zum Online-Shop' : '← Back to Online Store'}</span>
           </button>
-          <span className="text-[10px] font-mono text-[#DEA43E]">Firebase Auth v12</span>
+
+          {/* Language Switcher */}
+          <div className="flex items-center gap-2">
+            <AdminLanguageToggle lang={lang} setLang={setLang} />
+          </div>
         </div>
 
         {/* Login Box */}
@@ -333,7 +372,9 @@ export default function AdminPortal({
               ATELIER INVENTORY MANAGEMENT
             </span>
             <p className="text-xs text-[#B5B5B5] mt-2 font-light">
-              {lang === 'de' ? 'Geschützter Bereich für Inventar- und Produktverwaltung' : 'Protected area for inventory and catalog control'}
+              {lang === 'de'
+                ? 'Geschützter Bereich für Inventar- und Produktverwaltung'
+                : 'Protected area for inventory and catalog control'}
             </p>
           </div>
 
@@ -381,7 +422,7 @@ export default function AdminPortal({
           <form onSubmit={handleAuthSubmit} className="space-y-4">
             <div>
               <label className="block text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] mb-1 font-semibold">
-                E-Mail-Adresse
+                {lang === 'de' ? 'E-Mail-Adresse' : 'Email Address'}
               </label>
               <input
                 type="email"
@@ -396,7 +437,7 @@ export default function AdminPortal({
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="block text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] font-semibold">
-                  Passwort
+                  {lang === 'de' ? 'Passwort' : 'Password'}
                 </label>
                 {authMode === 'login' && (
                   <button
@@ -404,7 +445,7 @@ export default function AdminPortal({
                     onClick={handlePasswordReset}
                     className="text-[10px] text-white/50 hover:text-[#DEA43E] transition-colors"
                   >
-                    Passwort vergessen?
+                    {lang === 'de' ? 'Passwort vergessen?' : 'Forgot password?'}
                   </button>
                 )}
               </div>
@@ -426,25 +467,33 @@ export default function AdminPortal({
               {submittingAuth ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-[#0D0D0D] border-t-transparent rounded-full animate-spin"></div>
-                  <span>Verarbeite...</span>
+                  <span>{lang === 'de' ? 'Verarbeite...' : 'Processing...'}</span>
                 </>
               ) : (
-                <span>{authMode === 'login' ? 'Im Portal anmelden' : 'Admin-Konto registrieren'}</span>
+                <span>
+                  {authMode === 'login'
+                    ? lang === 'de'
+                      ? 'Im Portal anmelden'
+                      : 'Sign in to Portal'
+                    : lang === 'de'
+                    ? 'Admin-Konto registrieren'
+                    : 'Register Admin Account'}
+                </span>
               )}
             </button>
           </form>
 
-          {/* Quick Demo Access Bypass Button */}
+          {/* Demo Access Bypass */}
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
             <span className="text-[10.5px] text-white/50 block mb-2.5">
-              Firebase Auth Projekt: <span className="font-mono text-white/80">macrown-13e95</span>
+              Firebase Project: <span className="font-mono text-white/80">macrown-13e95</span>
             </span>
             <button
               type="button"
               onClick={() => setDemoBypass(true)}
               className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/15 text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] rounded-[2px] transition-colors"
             >
-              ⚡ Sofort-Vorschau Inventar (Demo Bypass)
+              ⚡ {lang === 'de' ? 'Sofort-Vorschau Inventar (Demo Bypass)' : 'Instant Preview Inventory (Demo Bypass)'}
             </button>
           </div>
         </div>
@@ -455,20 +504,23 @@ export default function AdminPortal({
   // AUTHENTICATED: INVENTORY MANAGEMENT DASHBOARD
   return (
     <div className="min-h-screen bg-[#F9F8F6] text-[#0D0D0D] flex flex-col">
-      {/* Top Admin Navbar */}
+      {/* Top Admin Navbar with Language Switcher */}
       <header className="bg-[#0D0D0D] text-white border-b border-[#DEA43E]/30 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Title */}
           <div className="flex items-center gap-4">
             <span className="font-cinzel text-xl tracking-[0.2em] font-medium text-white">MACROWN</span>
             <span className="text-[9.5px] bg-[#DEA43E] text-[#0D0D0D] font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-[1px]">
-              INVENTAR-PORTAL
+              {lang === 'de' ? 'INVENTAR-PORTAL' : 'INVENTORY PORTAL'}
             </span>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-xs text-white/70">
+          {/* Right Actions & Language Switcher */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Language Switcher on Admin Dashboard */}
+            <AdminLanguageToggle lang={lang} setLang={setLang} />
+
+            <div className="hidden md:flex items-center gap-2 text-xs text-white/70">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span className="font-mono text-xs text-white/90 truncate max-w-[180px]">
                 {currentUser?.email || 'admin@macrown.org (Demo)'}
@@ -480,7 +532,7 @@ export default function AdminPortal({
               onClick={onExitAdmin}
               className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-display uppercase tracking-wider rounded-[2px] transition-colors flex items-center gap-1.5"
             >
-              <span>← Zum Shop</span>
+              <span>{lang === 'de' ? '← Zum Shop' : '← Storefront'}</span>
             </button>
 
             <button
@@ -488,7 +540,7 @@ export default function AdminPortal({
               onClick={handleSignOut}
               className="px-3 py-1.5 text-xs text-white/60 hover:text-rose-400 font-display uppercase tracking-wider transition-colors"
             >
-              Abmelden
+              {lang === 'de' ? 'Abmelden' : 'Sign Out'}
             </button>
           </div>
         </div>
@@ -500,48 +552,58 @@ export default function AdminPortal({
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
-              Gesamt-Produkte
+              {lang === 'de' ? 'Gesamt-Produkte' : 'Total Products'}
             </span>
             <span className="font-serif text-3xl font-normal text-[#0D0D0D]">{products.length}</span>
-            <span className="text-[10px] text-emerald-600 font-medium block mt-1">Aktiver Online-Katalog</span>
+            <span className="text-[10px] text-emerald-600 font-medium block mt-1">
+              {lang === 'de' ? 'Aktiver Katalog' : 'Active Catalog'}
+            </span>
           </div>
 
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
-              Lagerbestand (Einheiten)
+              {lang === 'de' ? 'Lagerbestand (Einheiten)' : 'Stock Units'}
             </span>
             <span className="font-serif text-3xl font-normal text-[#0D0D0D]">{totalStockUnits}</span>
-            <span className="text-[10px] text-[#7A7A7A] block mt-1">Stück vorrätig</span>
+            <span className="text-[10px] text-[#7A7A7A] block mt-1">
+              {lang === 'de' ? 'Stück vorrätig' : 'Units on hand'}
+            </span>
           </div>
 
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
-              Geringer Bestand
+              {lang === 'de' ? 'Geringer Bestand' : 'Low Stock'}
             </span>
             <span className={`font-serif text-3xl font-normal ${lowStockCount > 0 ? 'text-amber-600' : 'text-[#0D0D0D]'}`}>
               {lowStockCount}
             </span>
-            <span className="text-[10px] text-amber-700 block mt-1">≤ 3 Einheiten</span>
+            <span className="text-[10px] text-amber-700 block mt-1">
+              {lang === 'de' ? '≤ 3 Einheiten' : '≤ 3 Units left'}
+            </span>
           </div>
 
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
-              Ausverkauft
+              {lang === 'de' ? 'Ausverkauft' : 'Out of Stock'}
             </span>
             <span className={`font-serif text-3xl font-normal ${outOfStockCount > 0 ? 'text-rose-600' : 'text-[#0D0D0D]'}`}>
               {outOfStockCount}
             </span>
-            <span className="text-[10px] text-rose-600 block mt-1">Nachbestellung nötig</span>
+            <span className="text-[10px] text-rose-600 block mt-1">
+              {lang === 'de' ? 'Nachbestellung nötig' : 'Restock needed'}
+            </span>
           </div>
 
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs col-span-2 md:col-span-1">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
-              Warenwert (Katalog)
+              {lang === 'de' ? 'Warenwert (Katalog)' : 'Inventory Value'}
             </span>
             <span className="font-serif text-2xl font-normal text-[#DEA43E] truncate block">
               {totalInventoryValueFormatted}
             </span>
-            <span className="text-[10px] text-[#7A7A7A] block mt-1">Verkaufswert</span>
+            <span className="text-[10px] text-[#7A7A7A] block mt-1">
+              {lang === 'de' ? 'Verkaufswert' : 'Retail Value'}
+            </span>
           </div>
         </div>
 
@@ -551,7 +613,11 @@ export default function AdminPortal({
           <div className="flex-1 max-w-md relative">
             <input
               type="text"
-              placeholder="Produkt nach Name, Textur oder Kategorie suchen..."
+              placeholder={
+                lang === 'de'
+                  ? 'Produkt nach Name, Textur oder Kategorie suchen...'
+                  : 'Search products by name, texture, or category...'
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
@@ -574,9 +640,9 @@ export default function AdminPortal({
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
             >
-              <option value="all">Alle Kategorien</option>
-              <option value="wigs">Perücken</option>
-              <option value="bundles">Haarbündel</option>
+              <option value="all">{lang === 'de' ? 'Alle Kategorien' : 'All Categories'}</option>
+              <option value="wigs">{lang === 'de' ? 'Perücken' : 'Wigs'}</option>
+              <option value="bundles">{lang === 'de' ? 'Haarbündel' : 'Hair Bundles'}</option>
               <option value="closure-frontal">Closure & Frontal</option>
               <option value="ponytail">Ponytail</option>
             </select>
@@ -587,10 +653,10 @@ export default function AdminPortal({
               onChange={(e) => setSelectedStockFilter(e.target.value)}
               className="bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
             >
-              <option value="all">Alle Bestandsstufen</option>
-              <option value="in_stock">Auf Lager</option>
-              <option value="low_stock">Geringer Bestand</option>
-              <option value="out_of_stock">Ausverkauft</option>
+              <option value="all">{lang === 'de' ? 'Alle Bestandsstufen' : 'All Stock Statuses'}</option>
+              <option value="in_stock">{lang === 'de' ? 'Auf Lager' : 'In Stock'}</option>
+              <option value="low_stock">{lang === 'de' ? 'Geringer Bestand' : 'Low Stock'}</option>
+              <option value="out_of_stock">{lang === 'de' ? 'Ausverkauft' : 'Out of Stock'}</option>
             </select>
 
             {/* Add New Product Button */}
@@ -599,7 +665,7 @@ export default function AdminPortal({
               onClick={handleOpenAddModal}
               className="px-4 py-2 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-xs font-display uppercase tracking-wider font-semibold rounded-[2px] transition-colors flex items-center gap-2 shadow-xs"
             >
-              <span>+ Produkt anlegen</span>
+              <span>{lang === 'de' ? '+ Produkt anlegen' : '+ New Product'}</span>
             </button>
           </div>
         </div>
@@ -610,12 +676,12 @@ export default function AdminPortal({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#F4F3EF] border-b border-[#E8E6E1] text-[10px] font-display uppercase tracking-wider text-[#666666]">
-                  <th className="py-3 px-4">Produkt</th>
-                  <th className="py-3 px-4">Kategorie / Grad</th>
-                  <th className="py-3 px-4">Preis (€)</th>
-                  <th className="py-3 px-4">Bestandsstatus</th>
-                  <th className="py-3 px-4 text-center">Menge</th>
-                  <th className="py-3 px-4 text-right">Aktionen</th>
+                  <th className="py-3 px-4">{lang === 'de' ? 'Produkt' : 'Product'}</th>
+                  <th className="py-3 px-4">{lang === 'de' ? 'Kategorie / Grad' : 'Category / Grade'}</th>
+                  <th className="py-3 px-4">{lang === 'de' ? 'Preis (€)' : 'Price (€)'}</th>
+                  <th className="py-3 px-4">{lang === 'de' ? 'Bestandsstatus' : 'Stock Status'}</th>
+                  <th className="py-3 px-4 text-center">{lang === 'de' ? 'Menge' : 'Qty'}</th>
+                  <th className="py-3 px-4 text-right">{lang === 'de' ? 'Aktionen' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E8E6E1]">
@@ -630,18 +696,18 @@ export default function AdminPortal({
                         <div className="flex items-center gap-3">
                           <img
                             src={p.image}
-                            alt={p.name.de}
+                            alt={p.name[lang]}
                             className="w-12 h-14 object-cover rounded-[1px] bg-[#E8E6E1] shrink-0"
                           />
                           <div>
                             <span className="font-serif text-sm font-medium text-[#0D0D0D] block line-clamp-1">
-                              {p.name.de}
+                              {p.name[lang]}
                             </span>
                             <span className="text-[11px] text-[#7A7A7A] block line-clamp-1">
-                              {p.name.en}
+                              {p.name[lang === 'de' ? 'en' : 'de']}
                             </span>
                             <span className="text-[10px] font-mono text-[#DEA43E] mt-0.5 block">
-                              Längen: {p.lengths.join(', ')}
+                              {lang === 'de' ? 'Längen:' : 'Lengths:'} {p.lengths.join(', ')}
                             </span>
                           </div>
                         </div>
@@ -679,9 +745,9 @@ export default function AdminPortal({
                               : 'bg-rose-50 text-rose-800 border-rose-300'
                           }`}
                         >
-                          <option value="in_stock">Auf Lager</option>
-                          <option value="low_stock">Geringer Bestand</option>
-                          <option value="out_of_stock">Ausverkauft</option>
+                          <option value="in_stock">{lang === 'de' ? 'Auf Lager' : 'In Stock'}</option>
+                          <option value="low_stock">{lang === 'de' ? 'Geringer Bestand' : 'Low Stock'}</option>
+                          <option value="out_of_stock">{lang === 'de' ? 'Ausverkauft' : 'Out of Stock'}</option>
                         </select>
                       </td>
 
@@ -716,14 +782,14 @@ export default function AdminPortal({
                             onClick={() => handleOpenEditModal(p)}
                             className="px-2.5 py-1 text-xs text-[#0D0D0D] hover:text-[#DEA43E] border border-[#E8E6E1] hover:border-[#DEA43E] rounded-[1px] transition-colors"
                           >
-                            Bearbeiten
+                            {lang === 'de' ? 'Bearbeiten' : 'Edit'}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteProduct(p.id)}
                             className="px-2.5 py-1 text-xs text-rose-600 hover:text-rose-800 border border-rose-200 hover:border-rose-400 rounded-[1px] transition-colors"
                           >
-                            Löschen
+                            {lang === 'de' ? 'Löschen' : 'Delete'}
                           </button>
                         </div>
                       </td>
@@ -736,7 +802,9 @@ export default function AdminPortal({
 
           {filteredProducts.length === 0 && (
             <div className="py-12 text-center text-xs text-[#7A7A7A]">
-              Keine Produkte gefunden, die deinen Filterkriterien entsprechen.
+              {lang === 'de'
+                ? 'Keine Produkte gefunden, die deinen Filterkriterien entsprechen.'
+                : 'No products found matching your filter criteria.'}
             </div>
           )}
         </div>
@@ -749,7 +817,13 @@ export default function AdminPortal({
             {/* Modal Header */}
             <div className="p-6 border-b border-[#E8E6E1] flex justify-between items-center bg-[#F9F8F6]">
               <h3 className="font-serif text-xl text-[#0D0D0D] font-normal">
-                {editingProduct ? 'Produkt bearbeiten' : 'Neues Produkt im Katalog anlegen'}
+                {editingProduct
+                  ? lang === 'de'
+                    ? 'Produkt bearbeiten'
+                    : 'Edit Product'
+                  : lang === 'de'
+                  ? 'Neues Produkt im Katalog anlegen'
+                  : 'Add New Product to Catalog'}
               </h3>
               <button
                 type="button"
@@ -765,7 +839,7 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Produktname (Deutsch) *
+                    {lang === 'de' ? 'Produktname (Deutsch) *' : 'Product Name (German) *'}
                   </label>
                   <input
                     type="text"
@@ -779,7 +853,7 @@ export default function AdminPortal({
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Produktname (Englisch)
+                    {lang === 'de' ? 'Produktname (Englisch)' : 'Product Name (English)'}
                   </label>
                   <input
                     type="text"
@@ -794,15 +868,15 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Kategorie *
+                    {lang === 'de' ? 'Kategorie *' : 'Category *'}
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
                     className="w-full bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
                   >
-                    <option value="wigs">Perücken (Wigs)</option>
-                    <option value="bundles">Haarbündel (Bundles)</option>
+                    <option value="wigs">{lang === 'de' ? 'Perücken (Wigs)' : 'Wigs'}</option>
+                    <option value="bundles">{lang === 'de' ? 'Haarbündel (Bundles)' : 'Hair Bundles'}</option>
                     <option value="closure-frontal">Closure & Frontal</option>
                     <option value="ponytail">Ponytail</option>
                   </select>
@@ -810,7 +884,7 @@ export default function AdminPortal({
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Haar-Qualität *
+                    {lang === 'de' ? 'Haar-Qualität *' : 'Hair Grade *'}
                   </label>
                   <select
                     value={formData.hairType}
@@ -818,13 +892,13 @@ export default function AdminPortal({
                     className="w-full bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
                   >
                     <option value="Lux Hair">Lux Hair (Premium Atelier)</option>
-                    <option value="Virgin Hair">Virgin Hair (100% Unbehandelt)</option>
+                    <option value="Virgin Hair">Virgin Hair (100% Unprocessed)</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Textur
+                    {lang === 'de' ? 'Textur' : 'Texture'}
                   </label>
                   <input
                     type="text"
@@ -839,7 +913,7 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Preis in EUR (€) *
+                    {lang === 'de' ? 'Preis in EUR (€) *' : 'Price in EUR (€) *'}
                   </label>
                   <input
                     type="text"
@@ -853,7 +927,7 @@ export default function AdminPortal({
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    UVP / Streichpreis (€)
+                    {lang === 'de' ? 'Streichpreis (€)' : 'Compare Price (€)'}
                   </label>
                   <input
                     type="text"
@@ -866,22 +940,22 @@ export default function AdminPortal({
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Bestandsstatus
+                    {lang === 'de' ? 'Bestandsstatus' : 'Stock Status'}
                   </label>
                   <select
                     value={formData.stockStatus}
                     onChange={(e) => setFormData({ ...formData, stockStatus: e.target.value as any })}
                     className="w-full bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
                   >
-                    <option value="in_stock">Auf Lager</option>
-                    <option value="low_stock">Geringer Bestand</option>
-                    <option value="out_of_stock">Ausverkauft</option>
+                    <option value="in_stock">{lang === 'de' ? 'Auf Lager' : 'In Stock'}</option>
+                    <option value="low_stock">{lang === 'de' ? 'Geringer Bestand' : 'Low Stock'}</option>
+                    <option value="out_of_stock">{lang === 'de' ? 'Ausverkauft' : 'Out of Stock'}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Menge
+                    {lang === 'de' ? 'Menge' : 'Quantity'}
                   </label>
                   <input
                     type="number"
@@ -895,7 +969,7 @@ export default function AdminPortal({
 
               <div>
                 <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                  Verfügbare Längen (Kommagetrennt)
+                  {lang === 'de' ? 'Verfügbare Längen (Kommagetrennt)' : 'Available Lengths (comma separated)'}
                 </label>
                 <input
                   type="text"
@@ -908,7 +982,7 @@ export default function AdminPortal({
 
               <div>
                 <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                  Hauptbild URL *
+                  {lang === 'de' ? 'Hauptbild URL *' : 'Primary Image URL *'}
                 </label>
                 <input
                   type="url"
@@ -923,7 +997,7 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    HD Lace Typ (optional)
+                    {lang === 'de' ? 'HD Lace Typ (optional)' : 'HD Lace Type (optional)'}
                   </label>
                   <input
                     type="text"
@@ -936,7 +1010,7 @@ export default function AdminPortal({
 
                 <div>
                   <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                    Badge Text (z.B. Bestseller, Neu)
+                    {lang === 'de' ? 'Badge Text (z.B. Bestseller, Neu)' : 'Badge Label (e.g. Bestseller, New)'}
                   </label>
                   <input
                     type="text"
@@ -950,7 +1024,7 @@ export default function AdminPortal({
 
               <div>
                 <label className="block text-xs font-display uppercase tracking-wider text-[#666666] mb-1 font-semibold">
-                  Beschreibung (Deutsch)
+                  {lang === 'de' ? 'Beschreibung (Deutsch)' : 'Description (German)'}
                 </label>
                 <textarea
                   rows={2}
@@ -966,13 +1040,19 @@ export default function AdminPortal({
                   onClick={() => setIsEditModalOpen(false)}
                   className="px-4 py-2 border border-[#E8E6E1] text-xs font-display uppercase tracking-wider rounded-[2px] hover:bg-neutral-100"
                 >
-                  Abbrechen
+                  {lang === 'de' ? 'Abbrechen' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-wider font-bold rounded-[2px] transition-colors"
                 >
-                  {editingProduct ? 'Änderungen speichern' : 'Produkt erstellen'}
+                  {editingProduct
+                    ? lang === 'de'
+                      ? 'Änderungen speichern'
+                      : 'Save Changes'
+                    : lang === 'de'
+                    ? 'Produkt erstellen'
+                    : 'Create Product'}
                 </button>
               </div>
             </form>

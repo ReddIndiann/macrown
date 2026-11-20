@@ -12,7 +12,27 @@ import type { CartItem } from './components/CartDrawer';
 import AdminPortal from './components/AdminPortal';
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('de');
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('macrown_lang');
+        if (saved === 'de' || saved === 'en') return saved;
+      } catch (e) {
+        console.error('Error reading language', e);
+      }
+    }
+    return 'de';
+  });
+
+  const setLang = (newLang: Lang) => {
+    setLangState(newLang);
+    try {
+      localStorage.setItem('macrown_lang', newLang);
+    } catch (e) {
+      console.error('Error saving language', e);
+    }
+  };
+
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Products state (persists to localStorage so admin updates remain active across reloads)
@@ -146,6 +166,7 @@ export default function App() {
         onUpdateProducts={handleUpdateProducts}
         onExitAdmin={handleExitAdmin}
         lang={lang}
+        setLang={setLang}
       />
     );
   }
