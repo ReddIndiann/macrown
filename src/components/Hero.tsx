@@ -240,7 +240,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
           </p>
 
           {/* Call to Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto">
             <a
               href="#shop"
               onClick={handleShopClick}
@@ -263,40 +263,6 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
             >
               <span>{t.hero.guideBtn}</span>
             </a>
-          </div>
-
-          {/* Trust Guarantee / Reviews Pill */}
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-[2px] bg-black/50 backdrop-blur-md border border-white/15 text-xs text-white/90">
-            <div className="flex items-center gap-1 text-[#DEA43E] font-medium">
-              <span>★★★★★</span>
-              <span className="font-bold text-white ml-0.5">4.9 / 5.0</span>
-            </div>
-            <span className="text-white/30">•</span>
-            <span className="text-[11px] font-light text-white/80">
-              {lang === 'de' ? 'Über 500+ zufriedene Kundinnen' : 'Over 500+ satisfied clients'}
-            </span>
-          </div>
-
-          {/* Interactive Slide Selector Tabs */}
-          <div className="mt-8 flex items-center gap-2 z-20">
-            {slides.map((s, idx) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setCurrentSlide(idx)}
-                className={`px-3 py-1 rounded-[1px] text-[10px] font-display uppercase tracking-widest transition-all cursor-pointer ${
-                  currentSlide === idx
-                    ? 'bg-[#DEA43E] text-[#0D0D0D] font-bold shadow-md'
-                    : 'bg-white/10 text-white/60 hover:text-white hover:bg-white/20 border border-white/15'
-                }`}
-              >
-                {idx === 0
-                  ? (lang === 'de' ? '01 Video Reel' : '01 Video Reel')
-                  : idx === 1
-                  ? (lang === 'de' ? '02 Royal Silk' : '02 Royal Silk')
-                  : (lang === 'de' ? '03 HD Lace' : '03 HD Lace')}
-              </button>
-            ))}
           </div>
         </div>
       </div>
