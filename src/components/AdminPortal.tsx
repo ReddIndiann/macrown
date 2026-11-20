@@ -8,7 +8,7 @@ import {
 import type { User } from 'firebase/auth';
 import { auth } from '../firebase';
 import { uploadToCloudinary } from '../cloudinary';
-import type { Product, ProductDocument, Lang } from '../data';
+import type { Product, Lang } from '../data';
 import AdminSidebar, { type AdminTab } from './AdminSidebar';
 
 interface AdminPortalProps {
@@ -101,7 +101,6 @@ export default function AdminPortal({
 
   // File upload state
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingDoc, setUploadingDoc] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Form fields for create/edit
@@ -123,7 +122,6 @@ export default function AdminPortal({
     badgeEn: '',
     descriptionDe: '',
     descriptionEn: '',
-    documents: [] as ProductDocument[],
   });
 
   // Listen to Firebase auth changes
@@ -169,48 +167,6 @@ export default function AdminPortal({
       setUploadingImage(false);
       setUploadProgress(null);
     }
-  };
-
-  // Handle Document File selection (PDF / DOC / Certificate)
-  const handleDocFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingDoc(true);
-    setUploadProgress(10);
-    try {
-      const res = await uploadFileToStorage(file, 'documents');
-      const fileExt = file.name.split('.').pop()?.toLowerCase();
-      const docType: ProductDocument['type'] =
-        fileExt === 'pdf' ? 'pdf' : fileExt === 'doc' || fileExt === 'docx' ? 'doc' : 'certificate';
-
-      const newDoc: ProductDocument = {
-        name: file.name,
-        url: res.url,
-        type: docType,
-        sizeBytes: res.size,
-      };
-
-      setFormData((prev) => ({
-        ...prev,
-        documents: [...prev.documents, newDoc],
-      }));
-    } catch (err: any) {
-      alert(lang === 'de' ? 'Fehler beim Hochladen des Dokuments: ' + err.message : 'Error uploading document: ' + err.message);
-    } finally {
-      setUploadingDoc(false);
-      setUploadProgress(null);
-      // Reset input
-      e.target.value = '';
-    }
-  };
-
-  // Remove attached document
-  const handleRemoveDocument = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      documents: prev.documents.filter((_, i) => i !== index),
-    }));
   };
 
   // Handle Login
@@ -290,7 +246,6 @@ export default function AdminPortal({
       badgeEn: 'New',
       descriptionDe: '100% Unbehandeltes Remy Echthaar mit natürlicher Dichte.',
       descriptionEn: '100% Raw Virgin Remy hair with natural fullness.',
-      documents: [],
     });
     setIsEditModalOpen(true);
   };
@@ -316,7 +271,6 @@ export default function AdminPortal({
       badgeEn: p.badge?.en || '',
       descriptionDe: p.description.de,
       descriptionEn: p.description.en,
-      documents: p.documents || [],
     });
     setIsEditModalOpen(true);
   };
@@ -353,7 +307,6 @@ export default function AdminPortal({
       tags: [formData.hairType, formData.texture],
       rating: editingProduct ? editingProduct.rating : 5.0,
       reviews: editingProduct ? editingProduct.reviews : 1,
-      documents: formData.documents.length ? formData.documents : undefined,
     };
 
     let newProductsList: Product[];
@@ -569,7 +522,6 @@ export default function AdminPortal({
         productsCount={products.length}
         lowStockCount={lowStockCount}
         outOfStockCount={outOfStockCount}
-        docCount={products.filter((p) => p.documents && p.documents.length > 0).length}
         currentUserEmail={currentUser?.email}
         lang={lang}
         setLang={setLang}
@@ -602,7 +554,6 @@ export default function AdminPortal({
               <h1 className="font-serif text-base sm:text-lg text-[#0D0D0D] leading-tight font-normal">
                 {activeTab === 'inventory' && (lang === 'de' ? 'Inventar & Produktkatalog' : 'Inventory & Catalog')}
                 {activeTab === 'analytics' && (lang === 'de' ? 'Bestandsanalyse & Kennzahlen' : 'Stock & KPIs Analytics')}
-                {activeTab === 'documents' && (lang === 'de' ? 'Echtheitszertifikate & Dokumente' : 'Authenticity Documents & Certificates')}
                 {activeTab === 'categories' && (lang === 'de' ? 'Kategorien & Kollektionen' : 'Categories & Collections')}
                 {activeTab === 'settings' && (lang === 'de' ? 'Firebase & Cloud Status' : 'Firebase & Cloud Settings')}
               </h1>
@@ -768,7 +719,6 @@ export default function AdminPortal({
                   <th className="py-3 px-4">{lang === 'de' ? 'Produkt' : 'Product'}</th>
                   <th className="py-3 px-4">{lang === 'de' ? 'Kategorie / Grad' : 'Category / Grade'}</th>
                   <th className="py-3 px-4">{lang === 'de' ? 'Preis (€)' : 'Price (€)'}</th>
-                  <th className="py-3 px-4">{lang === 'de' ? 'Dokumente / Zertifikate' : 'Docs / Certificates'}</th>
                   <th className="py-3 px-4">{lang === 'de' ? 'Bestandsstatus' : 'Stock Status'}</th>
                   <th className="py-3 px-4 text-center">{lang === 'de' ? 'Menge' : 'Qty'}</th>
                   <th className="py-3 px-4 text-right">{lang === 'de' ? 'Aktionen' : 'Actions'}</th>
@@ -778,7 +728,6 @@ export default function AdminPortal({
                 {filteredProducts.map((p) => {
                   const stockStatus = p.stockStatus || 'in_stock';
                   const stockQty = p.stockQuantity ?? 10;
-                  const docCount = p.documents?.length || 0;
 
                   return (
                     <tr key={p.id} className="hover:bg-[#FAF9F7] transition-colors">
@@ -821,20 +770,6 @@ export default function AdminPortal({
                       {/* Price */}
                       <td className="py-3 px-4 font-serif text-sm font-semibold text-[#0D0D0D]">
                         {(p.price / 100).toFixed(2).replace('.', ',')} €
-                      </td>
-
-                      {/* Documents & Certificates Status */}
-                      <td className="py-3 px-4">
-                        {docCount > 0 ? (
-                          <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-medium">
-                            <span>📄</span>
-                            <span>{docCount} {lang === 'de' ? (docCount === 1 ? 'Zertifikat' : 'Dokumente') : (docCount === 1 ? 'Doc' : 'Docs')}</span>
-                          </div>
-                        ) : (
-                          <span className="text-[#999999] text-[11px] italic">
-                            {lang === 'de' ? 'Kein Dokument' : 'No document'}
-                          </span>
-                        )}
                       </td>
 
                       {/* Stock Status Selector */}
@@ -1006,82 +941,7 @@ export default function AdminPortal({
           </div>
         )}
 
-        {/* TAB 3: DOCUMENTS & CERTIFICATES */}
-        {activeTab === 'documents' && (
-          <div className="space-y-6">
-            <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-serif text-lg text-[#0D0D0D]">
-                    {lang === 'de' ? 'Echtheitszertifikate & Laborprüfungen' : 'Authenticity Certificates & Lab Reports'}
-                  </h3>
-                  <p className="text-xs text-[#7A7A7A] mt-1 max-w-2xl leading-relaxed">
-                    {lang === 'de'
-                      ? 'Verknüpfe jedes Haarprodukt mit offiziellen Zertifikaten (PDF, Word oder Bild). Hochgeladene Dokumente werden automatisch als vertrauenswürdiges Echtheitssiegel direkt auf den Produktkarten im Shop für Kunden sichtbar.'
-                      : 'Attach official certificates (PDF, Word, or image) to each hair product. Uploaded documents automatically appear as trust verification badges on storefront product cards.'}
-                  </p>
-                </div>
-                <span className="text-3xl text-[#DEA43E]">📜</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {products.map((p) => {
-                const docs = p.documents || [];
-                return (
-                  <div key={p.id} className="bg-white border border-[#E8E6E1] rounded-[2px] p-5 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <img src={p.image} alt={p.name[lang]} className="w-12 h-12 object-cover rounded-[1px] border border-[#E8E6E1]" />
-                        <div>
-                          <span className="font-serif text-base text-[#0D0D0D] font-normal block leading-tight">{p.name[lang]}</span>
-                          <span className="text-[10px] font-display uppercase tracking-widest text-[#DEA43E] font-semibold">{p.hairType}</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-4">
-                        {docs.length > 0 ? (
-                          docs.map((doc, idx) => (
-                            <div key={idx} className="p-2.5 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2 truncate">
-                                <span className="text-base text-rose-600">📄</span>
-                                <span className="font-medium text-[#0D0D0D] truncate">{doc.name}</span>
-                              </div>
-                              <a
-                                href={doc.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] hover:underline font-semibold shrink-0 ml-2"
-                              >
-                                {lang === 'de' ? 'Öffnen ↗' : 'View ↗'}
-                              </a>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs text-[#999999] italic py-2">
-                            {lang === 'de' ? 'Noch kein Dokument hinterlegt' : 'No document attached'}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-[#E8E6E1] flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(p)}
-                        className="px-3 py-1.5 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-[11px] font-display uppercase tracking-wider font-semibold rounded-[1px] transition-colors"
-                      >
-                        {lang === 'de' ? 'Dokumente bearbeiten / hochladen' : 'Manage / Upload Docs'}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: CATEGORIES & HAIR QUALITIES */}
+        {/* TAB 3: CATEGORIES & HAIR QUALITIES */}
         {activeTab === 'categories' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -1434,94 +1294,6 @@ export default function AdminPortal({
                 />
               </div>
 
-              {/* DOCUMENT & CERTIFICATE UPLOAD SECTION (PDF, DOCS) */}
-              <div className="p-4 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="block text-xs font-display uppercase tracking-wider text-[#0D0D0D] font-bold">
-                      {lang === 'de' ? '📄 Echtheitszertifikate & Dokumente (PDF, DOCX)' : '📄 Authenticity Certificates & Docs (PDF, DOCX)'}
-                    </label>
-                    <span className="text-[11px] text-[#7A7A7A] block font-light">
-                      {lang === 'de'
-                        ? 'Lade Zertifikate der vietnamesischen Manufaktur oder Pflegeanleitungen hoch'
-                        : 'Upload atelier certificates of authenticity, quality reports, or care sheets'}
-                    </span>
-                  </div>
-                  {uploadingDoc && (
-                    <span className="text-[10px] text-[#DEA43E] font-mono animate-pulse">
-                      {lang === 'de' ? `Dokument lädt... ${uploadProgress || ''}%` : `Uploading doc... ${uploadProgress || ''}%`}
-                    </span>
-                  )}
-                </div>
-
-                {/* Upload Button */}
-                <div className="flex items-center gap-3">
-                  <label className="cursor-pointer px-3.5 py-2 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-[11px] font-display uppercase tracking-wider font-semibold rounded-[2px] transition-colors inline-flex items-center gap-2 shadow-xs">
-                    <svg className="w-4 h-4 text-[#DEA43E] group-hover:text-[#0D0D0D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
-                    <span>{lang === 'de' ? '+ Dokument hochladen (PDF)' : '+ Upload Document (PDF)'}</span>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,image/*"
-                      onChange={handleDocFileChange}
-                      disabled={uploadingDoc}
-                      className="hidden"
-                    />
-                  </label>
-                  <span className="text-[11px] text-[#7A7A7A]">Max. 20 MB pro Datei</span>
-                </div>
-
-                {/* List of Attached Documents */}
-                {formData.documents.length > 0 ? (
-                  <div className="space-y-2 pt-2">
-                    {formData.documents.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-2.5 bg-white border border-[#E8E6E1] rounded-[2px] text-xs"
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <span className="text-base text-rose-600 font-bold">📄</span>
-                          <span className="font-medium text-[#0D0D0D] truncate max-w-[280px]">
-                            {doc.name}
-                          </span>
-                          {doc.sizeBytes && (
-                            <span className="text-[10px] text-[#7A7A7A] font-mono">
-                              ({(doc.sizeBytes / 1024 / 1024).toFixed(1)} MB)
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-3 shrink-0">
-                          <a
-                            href={doc.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[#DEA43E] hover:underline text-[11px] font-display uppercase tracking-wider font-semibold"
-                          >
-                            {lang === 'de' ? 'Vorschau' : 'View'}
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveDocument(idx)}
-                            className="text-rose-600 hover:text-rose-800 text-xs px-1"
-                            title="Entfernen"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-[11px] text-[#7A7A7A] italic py-1">
-                    {lang === 'de'
-                      ? 'Noch keine Zertifikate oder Dokumente hinterlegt.'
-                      : 'No certificates or documents attached yet.'}
-                  </div>
-                )}
-              </div>
-
               {/* Lace Type & Badge */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -1575,7 +1347,7 @@ export default function AdminPortal({
                 </button>
                 <button
                   type="submit"
-                  disabled={uploadingImage || uploadingDoc}
+                  disabled={uploadingImage}
                   className="px-6 py-2 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-wider font-bold rounded-[2px] transition-colors shadow-sm"
                 >
                   {editingProduct

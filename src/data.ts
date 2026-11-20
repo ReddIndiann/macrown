@@ -49,14 +49,6 @@ export const PRODUCTS: Product[] = [
     rating: 5.0,
     stockStatus: 'in_stock',
     stockQuantity: 14,
-    documents: [
-      {
-        name: 'Echtheitszertifikat-100%-Rohhaar.pdf',
-        url: 'https://www.macrown.org',
-        type: 'certificate',
-        sizeBytes: 1240000,
-      },
-    ],
     reviews: 28,
     badge: { de: 'Flagship Kollektion', en: 'Flagship Collection' },
     description: {
