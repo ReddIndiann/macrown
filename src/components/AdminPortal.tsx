@@ -9,6 +9,7 @@ import type { User } from 'firebase/auth';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, storage } from '../firebase';
 import type { Product, ProductDocument, Lang } from '../data';
+import AdminSidebar, { type AdminTab } from './AdminSidebar';
 
 interface AdminPortalProps {
   products: Product[];
@@ -68,6 +69,10 @@ export default function AdminPortal({
 
   // Demo bypass mode
   const [demoBypass, setDemoBypass] = useState(false);
+
+  // Sidenav & Active Tab state
+  const [activeTab, setActiveTab] = useState<AdminTab>('inventory');
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Inventory filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -544,9 +549,7 @@ export default function AdminPortal({
 
           {/* Demo Access Bypass */}
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
-            <span className="text-[10.5px] text-white/50 block mb-2.5">
-              Firebase Project: <span className="font-mono text-white/80">macrown-13e95</span>
-            </span>
+           
             <button
               type="button"
               onClick={() => setDemoBypass(true)}
@@ -562,51 +565,83 @@ export default function AdminPortal({
 
   // AUTHENTICATED: INVENTORY MANAGEMENT DASHBOARD
   return (
-    <div className="min-h-screen bg-[#F9F8F6] text-[#0D0D0D] flex flex-col">
-      {/* Top Admin Navbar with Language Switcher */}
-      <header className="bg-[#0D0D0D] text-white border-b border-[#DEA43E]/30 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Title */}
-          <div className="flex items-center gap-4">
-            <span className="font-cinzel text-xl tracking-[0.2em] font-medium text-white">MACROWN</span>
-            <span className="text-[9.5px] bg-[#DEA43E] text-[#0D0D0D] font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-[1px]">
-              {lang === 'de' ? 'INVENTAR-PORTAL' : 'INVENTORY PORTAL'}
-            </span>
+    <div className="min-h-screen bg-[#F9F8F6] text-[#0D0D0D] flex">
+      {/* Left Sidenav */}
+      <AdminSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        productsCount={products.length}
+        lowStockCount={lowStockCount}
+        outOfStockCount={outOfStockCount}
+        docCount={products.filter((p) => p.documents && p.documents.length > 0).length}
+        currentUserEmail={currentUser?.email}
+        lang={lang}
+        setLang={setLang}
+        onExitAdmin={onExitAdmin}
+        onSignOut={handleSignOut}
+        onOpenAddModal={handleOpenAddModal}
+        isMobileOpen={isMobileNavOpen}
+        onCloseMobile={() => setIsMobileNavOpen(false)}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Header Bar */}
+        <header className="bg-white border-b border-[#E8E6E1] sticky top-0 z-10 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsMobileNavOpen(true)}
+              className="lg:hidden p-2 rounded-[2px] text-[#0D0D0D] hover:bg-[#F4F3EF] border border-[#E8E6E1]"
+              aria-label="Navigation öffnen"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <div>
+              <div className="text-[9.5px] font-display uppercase tracking-widest text-[#7A7A7A] font-semibold">
+                MACROWN ATELIER OS
+              </div>
+              <h1 className="font-serif text-base sm:text-lg text-[#0D0D0D] leading-tight font-normal">
+                {activeTab === 'inventory' && (lang === 'de' ? 'Inventar & Produktkatalog' : 'Inventory & Catalog')}
+                {activeTab === 'analytics' && (lang === 'de' ? 'Bestandsanalyse & Kennzahlen' : 'Stock & KPIs Analytics')}
+                {activeTab === 'documents' && (lang === 'de' ? 'Echtheitszertifikate & Dokumente' : 'Authenticity Documents & Certificates')}
+                {activeTab === 'categories' && (lang === 'de' ? 'Kategorien & Kollektionen' : 'Categories & Collections')}
+                {activeTab === 'settings' && (lang === 'de' ? 'Firebase & Cloud Status' : 'Firebase & Cloud Settings')}
+              </h1>
+            </div>
           </div>
 
-          {/* Right Actions & Language Switcher */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <AdminLanguageToggle lang={lang} setLang={setLang} />
-
-            <div className="hidden md:flex items-center gap-2 text-xs text-white/70">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="font-mono text-xs text-white/90 truncate max-w-[180px]">
-                {currentUser?.email || 'admin@macrown.org (Demo)'}
-              </span>
-            </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={handleOpenAddModal}
+              className="px-3.5 py-1.5 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-xs font-display uppercase tracking-wider font-semibold rounded-[2px] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span className="hidden sm:inline">{lang === 'de' ? 'Produkt anlegen' : 'New Product'}</span>
+            </button>
 
             <button
               type="button"
               onClick={onExitAdmin}
-              className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-display uppercase tracking-wider rounded-[2px] transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs text-[#0D0D0D] hover:text-[#DEA43E] border border-[#E8E6E1] hover:border-[#DEA43E] rounded-[2px] transition-colors hidden sm:flex items-center gap-1 font-display uppercase tracking-wider font-medium"
             >
-              <span>{lang === 'de' ? '← Zum Shop' : '← Storefront'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="px-3 py-1.5 text-xs text-white/60 hover:text-rose-400 font-display uppercase tracking-wider transition-colors"
-            >
-              {lang === 'de' ? 'Abmelden' : 'Sign Out'}
+              <span>{lang === 'de' ? 'Shop' : 'Shop'}</span>
+              <span>↗</span>
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Dashboard Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* KPI Stats Cards */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* TAB 1: INVENTORY & CATALOG */}
+        {activeTab === 'inventory' && (
+          <>
+            {/* KPI Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
             <span className="text-[10px] font-display uppercase tracking-wider text-[#7A7A7A] block mb-1">
@@ -882,7 +917,296 @@ export default function AdminPortal({
             </div>
           )}
         </div>
+          </>
+        )}
+
+        {/* TAB 2: ANALYTICS & STOCK HEALTH */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-rose-600 font-bold block mb-1">
+                  {lang === 'de' ? 'Ausverkaufte Artikel' : 'Out of Stock Products'}
+                </span>
+                <div className="font-serif text-3xl font-normal text-rose-700">{outOfStockCount}</div>
+                <p className="text-xs text-[#7A7A7A] mt-2">
+                  {lang === 'de'
+                    ? 'Diese Artikel sind im Onlineshop als "Ausverkauft" markiert und können nicht in den Warenkorb gelegt werden.'
+                    : 'These items are marked as "Sold Out" on the storefront and cannot be purchased.'}
+                </p>
+              </div>
+
+              <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-amber-600 font-bold block mb-1">
+                  {lang === 'de' ? 'Geringer Lagerbestand' : 'Low Stock Warning'}
+                </span>
+                <div className="font-serif text-3xl font-normal text-amber-700">{lowStockCount}</div>
+                <p className="text-xs text-[#7A7A7A] mt-2">
+                  {lang === 'de'
+                    ? 'Bestand ≤ 3 Einheiten. Kunden sehen den Hinweis "Nur noch wenige verfügbar".'
+                    : 'Stock is ≤ 3 units. Customers see a "Low stock" urgency badge on the storefront.'}
+                </p>
+              </div>
+
+              <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-[#DEA43E] font-bold block mb-1">
+                  {lang === 'de' ? 'Katalogwert' : 'Total Inventory Value'}
+                </span>
+                <div className="font-serif text-3xl font-normal text-[#0D0D0D]">{totalInventoryValueFormatted}</div>
+                <p className="text-xs text-[#7A7A7A] mt-2">
+                  {lang === 'de'
+                    ? `Gesamtwert aller ${totalStockUnits} physischen Einheiten im Atelier-Lager.`
+                    : `Total retail valuation across all ${totalStockUnits} units in the atelier inventory.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E8E6E1] rounded-[2px] p-6 shadow-xs">
+              <h3 className="font-serif text-lg text-[#0D0D0D] mb-1">
+                {lang === 'de' ? 'Nachbestellungs-Prioritätsliste' : 'Priority Restock List'}
+              </h3>
+              <p className="text-xs text-[#7A7A7A] mb-4">
+                {lang === 'de'
+                  ? 'Artikel, die dringend im Atelier nachproduziert oder nachbestellt werden sollten.'
+                  : 'Items needing restock or manufacturing priority.'}
+              </p>
+
+              <div className="divide-y divide-[#E8E6E1]">
+                {products
+                  .filter((p) => p.stockStatus === 'out_of_stock' || p.stockStatus === 'low_stock' || (p.stockQuantity ?? 10) <= 3)
+                  .map((p) => (
+                    <div key={p.id} className="py-3.5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <img src={p.image} alt={p.name[lang]} className="w-11 h-11 object-cover rounded-[1px] border border-[#E8E6E1]" />
+                        <div>
+                          <span className="font-serif text-sm font-normal text-[#0D0D0D]">{p.name[lang]}</span>
+                          <div className="text-[10.5px] text-[#7A7A7A] mt-0.5">
+                            {lang === 'de' ? 'Aktueller Bestand' : 'Current Stock'}: <strong className="font-mono text-[#0D0D0D]">{p.stockQuantity ?? 0} Stk.</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleQuickStockChange(p.id, 'in_stock');
+                            handleQuickQuantityChange(p.id, 10);
+                          }}
+                          className="px-3 py-1 bg-[#DEA43E] hover:bg-[#C79237] text-[#0D0D0D] text-xs font-display uppercase tracking-wider font-bold rounded-[1px] transition-colors"
+                        >
+                          + 10 {lang === 'de' ? 'Auffüllen' : 'Restock'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                {products.filter((p) => p.stockStatus === 'out_of_stock' || p.stockStatus === 'low_stock' || (p.stockQuantity ?? 10) <= 3).length === 0 && (
+                  <div className="py-8 text-center text-xs text-emerald-700">
+                    ✓ {lang === 'de' ? 'Alle Produkte haben ausreichenden Lagerbestand!' : 'All products have optimal stock levels!'}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: DOCUMENTS & CERTIFICATES */}
+        {activeTab === 'documents' && (
+          <div className="space-y-6">
+            <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-serif text-lg text-[#0D0D0D]">
+                    {lang === 'de' ? 'Echtheitszertifikate & Laborprüfungen' : 'Authenticity Certificates & Lab Reports'}
+                  </h3>
+                  <p className="text-xs text-[#7A7A7A] mt-1 max-w-2xl leading-relaxed">
+                    {lang === 'de'
+                      ? 'Verknüpfe jedes Haarprodukt mit offiziellen Zertifikaten (PDF, Word oder Bild). Hochgeladene Dokumente werden automatisch als vertrauenswürdiges Echtheitssiegel direkt auf den Produktkarten im Shop für Kunden sichtbar.'
+                      : 'Attach official certificates (PDF, Word, or image) to each hair product. Uploaded documents automatically appear as trust verification badges on storefront product cards.'}
+                  </p>
+                </div>
+                <span className="text-3xl text-[#DEA43E]">📜</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {products.map((p) => {
+                const docs = p.documents || [];
+                return (
+                  <div key={p.id} className="bg-white border border-[#E8E6E1] rounded-[2px] p-5 shadow-xs flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <img src={p.image} alt={p.name[lang]} className="w-12 h-12 object-cover rounded-[1px] border border-[#E8E6E1]" />
+                        <div>
+                          <span className="font-serif text-base text-[#0D0D0D] font-normal block leading-tight">{p.name[lang]}</span>
+                          <span className="text-[10px] font-display uppercase tracking-widest text-[#DEA43E] font-semibold">{p.hairType}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mb-4">
+                        {docs.length > 0 ? (
+                          docs.map((doc, idx) => (
+                            <div key={idx} className="p-2.5 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2 truncate">
+                                <span className="text-base text-rose-600">📄</span>
+                                <span className="font-medium text-[#0D0D0D] truncate">{doc.name}</span>
+                              </div>
+                              <a
+                                href={doc.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[10.5px] font-display uppercase tracking-wider text-[#DEA43E] hover:underline font-semibold shrink-0 ml-2"
+                              >
+                                {lang === 'de' ? 'Öffnen ↗' : 'View ↗'}
+                              </a>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-xs text-[#999999] italic py-2">
+                            {lang === 'de' ? 'Noch kein Dokument hinterlegt' : 'No document attached'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-[#E8E6E1] flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(p)}
+                        className="px-3 py-1.5 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-[11px] font-display uppercase tracking-wider font-semibold rounded-[1px] transition-colors"
+                      >
+                        {lang === 'de' ? 'Dokumente bearbeiten / hochladen' : 'Manage / Upload Docs'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: CATEGORIES & HAIR QUALITIES */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                { id: 'wigs', nameDe: 'Perücken (Wigs)', nameEn: 'Wigs', descDe: 'HD Lace & Glueless Modelle', descEn: 'HD Lace & Glueless styles' },
+                { id: 'bundles', nameDe: 'Haarbündel (Bundles)', nameEn: 'Hair Bundles', descDe: 'Raw & Virgin Silky Wefts', descEn: 'Raw & Virgin Silky Wefts' },
+                { id: 'closure-frontal', nameDe: 'Closure & Frontal', nameEn: 'Closure & Frontal', descDe: '13x4 / 13x6 Melt Swiss Lace', descEn: '13x4 / 13x6 Melt Swiss Lace' },
+                { id: 'ponytail', nameDe: 'Ponytails', nameEn: 'Ponytails', descDe: 'Wrap-Around Echthaarzöpfe', descEn: 'Wrap-Around Human Hair Tails' },
+              ].map((cat) => {
+                const catProducts = products.filter((p) => p.category === cat.id);
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={() => {
+                      setSelectedCategory(cat.id);
+                      setActiveTab('inventory');
+                    }}
+                    className="p-6 bg-white border border-[#E8E6E1] hover:border-[#DEA43E] rounded-[2px] shadow-xs cursor-pointer transition-all group"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-serif text-lg text-[#0D0D0D] group-hover:text-[#DEA43E] transition-colors">
+                        {lang === 'de' ? cat.nameDe : cat.nameEn}
+                      </h4>
+                      <span className="font-mono text-sm font-bold bg-[#F4F3EF] px-2 py-0.5 rounded-[1px]">
+                        {catProducts.length}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#7A7A7A] mb-4">{lang === 'de' ? cat.descDe : cat.descEn}</p>
+                    <span className="text-[10px] font-display uppercase tracking-widest text-[#DEA43E] font-semibold">
+                      {lang === 'de' ? 'Im Inventar filtern →' : 'Filter in Inventory →'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="p-6 bg-white border border-[#E8E6E1] rounded-[2px] shadow-xs">
+              <h3 className="font-serif text-lg text-[#0D0D0D] mb-4">
+                {lang === 'de' ? 'Haarqualitäts-Verteilung im Atelier' : 'Hair Quality Distribution'}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 bg-[#FDF9F0] border border-[#DEA43E]/40 rounded-[2px]">
+                  <span className="text-xs font-display uppercase tracking-wider text-[#9E6F1E] font-bold block mb-1">
+                    LUX HAIR (Haute Coiffure Alternative)
+                  </span>
+                  <span className="font-serif text-2xl text-[#0D0D0D] font-normal">
+                    {products.filter((p) => p.hairType === 'Lux Hair').length} {lang === 'de' ? 'Artikel' : 'Items'}
+                  </span>
+                  <p className="text-xs text-[#666666] mt-2 leading-relaxed">
+                    {lang === 'de'
+                      ? '100% chemiefreies Rohhaar aus kontrollierten Quellen. Färbbar bis zu warmem Blond mit gesundem Glanz.'
+                      : '100% non-chemical raw hair alternative from vetted sources. Bleachable to warm blonde.'}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-[#F4F3EF] border border-[#E8E6E1] rounded-[2px]">
+                  <span className="text-xs font-display uppercase tracking-wider text-[#0D0D0D] font-bold block mb-1">
+                    VIRGIN HAIR (Reines Rohhaar)
+                  </span>
+                  <span className="font-serif text-2xl text-[#0D0D0D] font-normal">
+                    {products.filter((p) => p.hairType === 'Virgin Hair').length} {lang === 'de' ? 'Artikel' : 'Items'}
+                  </span>
+                  <p className="text-xs text-[#666666] mt-2 leading-relaxed">
+                    {lang === 'de'
+                      ? 'Unbehandeltes Einzelspenderhaar mit intakter Schuppenschicht. Färbbar bis zu Platinblond #613.'
+                      : 'Untreated single-donor raw hair with intact cuticles. Safely liftable to platinum blonde #613.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: SETTINGS & FIREBASE STATUS */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="bg-white border border-[#E8E6E1] rounded-[2px] p-6 shadow-xs">
+              <h3 className="font-serif text-lg text-[#0D0D0D] mb-4">
+                {lang === 'de' ? 'Firebase Cloud Infrastruktur' : 'Firebase Cloud Infrastructure'}
+              </h3>
+
+              <div className="space-y-3 font-mono text-xs">
+                <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
+                  <span className="text-[#666666]">Project ID:</span>
+                  <span className="font-bold text-[#0D0D0D]">macrown-13e95</span>
+                </div>
+                <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
+                  <span className="text-[#666666]">Storage Bucket:</span>
+                  <span className="font-bold text-[#0D0D0D]">macrown-13e95.firebasestorage.app</span>
+                </div>
+                <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
+                  <span className="text-[#666666]">Auth Domain:</span>
+                  <span className="font-bold text-[#0D0D0D]">macrown-13e95.firebaseapp.com</span>
+                </div>
+                <div className="p-3 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[1px] flex items-center justify-between">
+                  <span className="text-[#666666]">Current Admin Session:</span>
+                  <span className="font-bold text-emerald-600">{currentUser?.email || 'admin@macrown.org (Demo Bypass)'}</span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-5 border-t border-[#E8E6E1] flex gap-3">
+                <button
+                  type="button"
+                  onClick={onExitAdmin}
+                  className="px-4 py-2 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white text-xs font-display uppercase tracking-wider font-semibold rounded-[1px] transition-colors"
+                >
+                  {lang === 'de' ? 'Zum Online-Shop zurückkehren' : 'Return to Online Store'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="px-4 py-2 border border-rose-300 text-rose-600 hover:bg-rose-50 text-xs font-display uppercase tracking-wider font-semibold rounded-[1px] transition-colors"
+                >
+                  {lang === 'de' ? 'Session abmelden' : 'Sign Out Session'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+    </div>
 
       {/* CREATE / EDIT PRODUCT MODAL (WITH DIRECT IMAGE & DOCS UPLOAD) */}
       {isEditModalOpen && (
