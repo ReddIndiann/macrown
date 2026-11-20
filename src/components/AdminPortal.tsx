@@ -67,8 +67,24 @@ export default function AdminPortal({
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
   const [submittingAuth, setSubmittingAuth] = useState(false);
 
-  // Demo bypass mode
-  const [demoBypass, setDemoBypass] = useState(false);
+  // Demo bypass mode (persists across page reloads in sessionStorage)
+  const [demoBypass, setDemoBypassState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('macrown_demo_auth') === 'true';
+    }
+    return false;
+  });
+
+  const setDemoBypass = (value: boolean) => {
+    setDemoBypassState(value);
+    if (typeof window !== 'undefined') {
+      if (value) {
+        sessionStorage.setItem('macrown_demo_auth', 'true');
+      } else {
+        sessionStorage.removeItem('macrown_demo_auth');
+      }
+    }
+  };
 
   // Sidenav & Active Tab state
   const [activeTab, setActiveTab] = useState<AdminTab>('inventory');

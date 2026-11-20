@@ -96,13 +96,35 @@ export default function App() {
     window.location.hash = '#admin';
   };
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      product: products[0] || PRODUCTS[0],
-      selectedLength: '24"',
-      quantity: 1,
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('macrown_cart');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {
+        console.error('Error loading saved cart', e);
+      }
+    }
+    return [
+      {
+        product: products[0] || PRODUCTS[0],
+        selectedLength: '24"',
+        quantity: 1,
+      },
+    ];
+  });
+
+  // Persist cart updates to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('macrown_cart', JSON.stringify(cartItems));
+    } catch (e) {
+      console.error('Error saving cart to localStorage', e);
+    }
+  }, [cartItems]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const t = LANG[lang];
