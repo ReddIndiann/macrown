@@ -153,7 +153,7 @@ export default function Navbar({
                   className="flex items-center gap-3.5 group cursor-pointer text-left"
                 >
                   <img
-                    src="https://www.macrown.org/wp-content/uploads/2025/01/logo-dark-3.png"
+                    src="/images/logo-dark-3.png"
                     alt="Macrown Hair Logo"
                     className="h-10 xl:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-102"
                     onError={(e) => {
@@ -183,7 +183,7 @@ export default function Navbar({
                 className="flex items-center gap-2.5 cursor-pointer text-left"
               >
                 <img
-                  src="https://www.macrown.org/wp-content/uploads/2025/01/logo-dark-3.png"
+                  src="/images/logo-dark-3.png"
                   alt="Macrown Hair Logo"
                   className="h-8 sm:h-9 w-auto object-contain"
                   onError={(e) => {
@@ -303,7 +303,7 @@ export default function Navbar({
             <div className="px-6 py-5 border-b border-[#E8E6E1] flex items-center justify-between bg-[#FFFFFF]">
               <div className="flex items-center gap-2.5">
                 <img
-                  src="https://www.macrown.org/wp-content/uploads/2025/01/logo-dark-3.png"
+                  src="/images/logo-dark-3.png"
                   alt="Macrown Logo"
                   className="h-8 w-auto object-contain"
                 />

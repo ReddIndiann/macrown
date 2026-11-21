@@ -239,7 +239,7 @@ export default function AdminPortal({
       hairType: 'Lux Hair',
       texture: 'Body Wave',
       lengths: '20", 24", 28"',
-      image: 'https://www.macrown.org/wp-content/uploads/2025/01/MRDC2196.jpg',
+      image: '/images/MRDC2196.jpg',
       hoverImage: '',
       laceType: '13x6 Melt HD Lace',
       badgeDe: 'Neu',
@@ -299,7 +299,7 @@ export default function AdminPortal({
       hairType: formData.hairType,
       texture: formData.texture,
       lengths: lengthsArray.length ? lengthsArray : ['20"', '24"'],
-      image: formData.image || 'https://www.macrown.org/wp-content/uploads/2025/01/MRDC2196.jpg',
+      image: formData.image || '/images/MRDC2196.jpg',
       hoverImage: formData.hoverImage || undefined,
       laceType: formData.laceType || undefined,
       badge: formData.badgeDe ? { de: formData.badgeDe, en: formData.badgeEn || formData.badgeDe } : undefined,
@@ -1289,7 +1289,7 @@ export default function AdminPortal({
                   required
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://www.macrown.org/wp-content/uploads/2025/01/MRDC2196.jpg"
+                  placeholder="/images/MRDC2196.jpg"
                   className="w-full bg-white border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
                 />
               </div>

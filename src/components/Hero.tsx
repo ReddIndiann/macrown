@@ -31,9 +31,9 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
   const slides: Slide[] = [
     {
       id: 0,
-      type: 'video',
-      src: 'https://cdn.coverr.co/videos/coverr-woman-running-her-fingers-through-her-hair-4283/1080p.mp4',
-      poster: 'https://cdn.coverr.co/videos/coverr-woman-running-her-fingers-through-her-hair-4283/thumbnail.jpg',
+      type: 'image',
+      src: '/images/MRDC2196.jpg',
+      poster: '/images/MRDC2196.jpg',
       eyebrowDe: 'GODFIDENCE PERÜCKEN • ATELIER VIETNAM',
       eyebrowEn: 'GODFIDENCE WIGS • ATELIER VIETNAM',
       title: 'MACROWN',
@@ -45,7 +45,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
     {
       id: 1,
       type: 'image',
-      src: 'https://www.macrown.org/wp-content/uploads/2025/03/mel-scaled-1.jpg',
+      src: '/images/mel-scaled-1.jpg',
       eyebrowDe: '100% UNBEHANDELTES ROHHAAR • PURE RAW EXCELLENCE',
       eyebrowEn: '100% UNTREATED RAW HAIR • PURE EXCELLENCE',
       title: 'ROYAL SILK',
@@ -57,7 +57,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
     {
       id: 2,
       type: 'image',
-      src: 'https://www.macrown.org/wp-content/uploads/2025/01/MRDC1845.jpg',
+      src: '/images/MRDC1845.jpg',
       eyebrowDe: 'SCHWEIZER SPITZENTECHNOLOGIE • INVISIBLE MELT',
       eyebrowEn: 'SWISS LACE TECHNOLOGY • INVISIBLE MELT',
       title: 'SWISS HD LACE',

@@ -76,7 +76,7 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
 
   return (
     <section className="py-16 bg-[#0D0D0D] text-white relative overflow-hidden border-b border-[#DEA43E]/20">
-      <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[url('https://www.macrown.org/wp-content/uploads/2025/01/MRDC2119.jpg')] bg-cover bg-center opacity-15 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[url('/images/MRDC2119.jpg')] bg-cover bg-center opacity-15 pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl">
           <span className="text-[10px] font-display uppercase tracking-[0.28em] text-[#DEA43E] font-bold block mb-3">
@@ -192,7 +192,7 @@ export function Footer({ lang, t, onOpenAdmin }: { lang: Lang; t: typeof LANG.de
           <div className="lg:col-span-4">
             <div className="flex items-center gap-3.5 mb-6">
               <img
-                src="https://www.macrown.org/wp-content/uploads/2025/01/macrown-light-logo.png"
+                src="/images/macrown-light-logo.png"
                 alt="Macrown"
                 className="h-10 w-auto object-contain"
                 onError={(e) => {

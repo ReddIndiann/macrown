@@ -5,13 +5,16 @@ interface ProductCardProps {
   product: Product;
   lang: Lang;
   t: any;
-  onAddToCart: (product: Product, selectedLength: string) => void;
+  onPreview: (product: Product) => void;
+  onAddToCart?: (product: Product, selectedLength: string) => void;
 }
 
-export default function ProductCard({ product, lang, t, onAddToCart }: ProductCardProps) {
-  const [selectedLength, setSelectedLength] = useState(product.lengths[0]);
+export default function ProductCard({
+  product,
+  lang,
+  onPreview,
+}: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [addedAnimation, setAddedAnimation] = useState(false);
 
   const name = product.name[lang];
   const priceFormatted = (product.price / 100).toFixed(2).replace('.', ',') + ' €';
@@ -19,165 +22,120 @@ export default function ProductCard({ product, lang, t, onAddToCart }: ProductCa
     ? (product.originalPrice / 100).toFixed(2).replace('.', ',') + ' €'
     : null;
 
-  const isOutOfStock = product.stockStatus === 'out_of_stock' || (product.stockQuantity !== undefined && product.stockQuantity === 0);
-  const isLowStock = product.stockStatus === 'low_stock' || (product.stockQuantity !== undefined && product.stockQuantity > 0 && product.stockQuantity <= 3);
+  const isOutOfStock =
+    product.stockStatus === 'out_of_stock' ||
+    (product.stockQuantity !== undefined && product.stockQuantity === 0);
+  const isLowStock =
+    product.stockStatus === 'low_stock' ||
+    (product.stockQuantity !== undefined && product.stockQuantity > 0 && product.stockQuantity <= 3);
 
-  const handleAdd = () => {
-    if (isOutOfStock) return;
-    onAddToCart(product, selectedLength);
-    setAddedAnimation(true);
-    setTimeout(() => setAddedAnimation(false), 1400);
-  };
+  // Lengths range e.g. "20" – 30""
+  const lengthsRange = product.lengths.length > 1
+    ? `${product.lengths[0]} – ${product.lengths[product.lengths.length - 1]}`
+    : product.lengths[0];
 
   return (
     <article
-      className="group relative bg-[#FFFFFF] rounded-[2px] overflow-hidden border border-[#E8E6E1] shadow-xs luxury-hover flex flex-col justify-between"
+      onClick={() => onPreview(product)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      className="group relative bg-[#FFFFFF] rounded-[2px] overflow-hidden border border-[#E8E6E1] hover:border-[#D5D0C6] luxury-hover flex flex-col justify-between cursor-pointer h-full transition-all duration-300"
     >
       {/* Product Image Stage */}
       <div className="relative aspect-[4/5] overflow-hidden bg-[#F4F3EF]">
         <img
           src={isHovered && product.hoverImage ? product.hoverImage : product.image}
           alt={name}
-          className="w-full h-full object-cover object-center transition-all duration-700 group-hover:scale-104"
+          className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
           loading="lazy"
         />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10 pointer-events-none">
           {isOutOfStock ? (
-            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-rose-900 text-white px-2 py-0.5 rounded-[1px] shadow-xs">
+            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-rose-900 text-white px-2.5 py-1 rounded-[1px] shadow-sm">
               {lang === 'de' ? 'Ausverkauft' : 'Sold Out'}
             </span>
           ) : isLowStock ? (
-            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-[1px] shadow-xs">
+            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-amber-700 text-white px-2.5 py-1 rounded-[1px] shadow-sm">
               {lang === 'de' ? 'Nur noch wenige' : 'Low Stock'}
             </span>
           ) : product.badge ? (
-            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-[#0D0D0D] text-[#DEA43E] px-2 py-0.5 rounded-[1px] shadow-xs">
+            <span className="text-[9px] font-display uppercase tracking-[0.2em] font-bold bg-[#0D0D0D]/90 text-[#DEA43E] border border-[#DEA43E]/40 px-2.5 py-1 rounded-[1px] shadow-sm backdrop-blur-xs">
               {product.badge[lang]}
             </span>
           ) : null}
-          {product.hairType && (
+        </div>
+
+        {/* Top Right: Lace or Grade */}
+        {product.laceType ? (
+          <div className="absolute top-3 right-3 z-10 pointer-events-none">
+            <span className="text-[8.5px] font-display uppercase tracking-[0.2em] font-bold bg-white/95 backdrop-blur-xs text-[#0D0D0D] px-2 py-0.5 rounded-[1px] border border-[#E8E6E1] shadow-xs">
+              HD LACE
+            </span>
+          </div>
+        ) : product.hairType ? (
+          <div className="absolute top-3 right-3 z-10 pointer-events-none">
             <span
-              className={`text-[8.5px] font-display uppercase tracking-[0.16em] font-semibold px-2 py-0.5 rounded-[1px] ${
+              className={`text-[8.5px] font-display uppercase tracking-[0.16em] font-semibold px-2 py-0.5 rounded-[1px] shadow-xs ${
                 product.hairType === 'Lux Hair'
                   ? 'bg-[#FDF9F0] text-[#9E6F1E] border border-[#DEA43E]/40'
-                  : 'bg-[#FFFFFF] text-[#0D0D0D] border border-[#E8E6E1]'
+                  : 'bg-white/95 text-[#0D0D0D] border border-[#E8E6E1]'
               }`}
             >
               {product.hairType}
             </span>
-          )}
-        </div>
-
-        {/* Lace Type Pill */}
-        {product.laceType && (
-          <div className="absolute top-3 right-3 z-10">
-            <span className="text-[8.5px] font-display uppercase tracking-[0.2em] font-bold bg-white/95 backdrop-blur-xs text-[#0D0D0D] px-2 py-0.5 rounded-[1px] border border-[#E8E6E1]">
-              HD LACE
-            </span>
           </div>
-        )}
+        ) : null}
+
+        {/* Hover Quick View Button */}
+        <div className="absolute inset-x-3 bottom-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <div className="w-full py-2.5 px-4 bg-white/95 backdrop-blur-xs text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-[#DEA43E] text-[10.5px] font-display uppercase tracking-[0.22em] font-bold rounded-[1px] shadow-md transition-all duration-200 border border-[#E8E6E1] flex items-center justify-center gap-2">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>{lang === 'de' ? 'Schnellansicht' : 'Quick View'}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Product Information Details */}
-      <div className="p-5 flex-1 flex flex-col justify-between bg-[#FFFFFF]">
+      {/* Clean Info Body */}
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between bg-[#FFFFFF]">
         <div>
-          {/* Reviews & Texture Bar */}
-          <div className="flex items-center justify-between text-xs text-[#7A7A7A] mb-2">
-            <span className="font-display tracking-[0.18em] uppercase text-[9.5px] text-[#DEA43E] font-semibold">
-              {product.texture}
+          {/* Category / Texture & Reviews */}
+          <div className="flex items-center justify-between text-xs mb-1.5">
+            <span className="font-display text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8B6B23]">
+              {product.hairType} • {product.texture}
             </span>
             <div className="flex items-center gap-1 text-[11px] text-[#DEA43E]">
-              <span>★</span>
-              <span className="font-medium text-[#0D0D0D]">{product.rating.toFixed(1)}</span>
+              <span className="text-amber-500">★</span>
+              <span className="font-semibold text-[#0D0D0D]">{product.rating.toFixed(1)}</span>
               <span className="text-[#8E8E8E] text-[10px]">({product.reviews})</span>
             </div>
           </div>
 
-          {/* Product Name in Lustria serif */}
-          <h3 className="font-serif text-lg text-[#0D0D0D] font-normal leading-snug line-clamp-2 mb-2 group-hover:text-[#DEA43E] transition-colors">
+          {/* Product Name */}
+          <h3 className="font-serif text-[16px] sm:text-[17px] text-[#0D0D0D] font-normal leading-snug line-clamp-2 group-hover:text-[#DEA43E] transition-colors mb-2 min-h-[2.6rem]">
             {name}
           </h3>
-
-          {/* Description */}
-          <p className="font-sans text-xs text-[#666666] line-clamp-2 font-light leading-relaxed mb-4">
-            {product.description[lang]}
-          </p>
         </div>
 
-        <div>
-          {/* Length Selector */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-[10px] text-[#7A7A7A] mb-1.5 font-display uppercase tracking-wider">
-              <span>{t.shopSection.lengthsLabel}</span>
-              <span className="font-semibold text-[#0D0D0D]">{selectedLength}</span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {product.lengths.map((len) => (
-                <button
-                  key={len}
-                  type="button"
-                  onClick={() => setSelectedLength(len)}
-                  className={`text-[10.5px] px-2 py-0.5 rounded-[1px] transition-all font-mono ${
-                    selectedLength === len
-                      ? 'bg-[#0D0D0D] text-white font-medium'
-                      : 'bg-[#F9F8F6] text-[#4A4A4A] border border-[#E8E6E1] hover:border-[#0D0D0D]'
-                  }`}
-                >
-                  {len}
-                </button>
-              ))}
-            </div>
+        {/* Price & Lengths Info Row */}
+        <div className="pt-3 border-t border-[#F0EEE9] flex items-baseline justify-between">
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-lg sm:text-xl font-normal text-[#0D0D0D] tracking-tight">
+              {priceFormatted}
+            </span>
+            {originalPriceFormatted && (
+              <span className="text-xs text-[#9E9891] line-through font-light">
+                {originalPriceFormatted}
+              </span>
+            )}
           </div>
 
-          {/* Price & Add to Bag Row */}
-          <div className="pt-3 border-t border-[#E8E6E1] flex items-center justify-between gap-3">
-            <div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-serif text-xl font-normal text-[#0D0D0D]">
-                  {priceFormatted}
-                </span>
-                {originalPriceFormatted && (
-                  <span className="text-[11px] text-[#9E9891] line-through font-light">
-                    {originalPriceFormatted}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleAdd}
-              disabled={isOutOfStock || addedAnimation}
-              className={`px-3.5 py-2 rounded-[2px] text-[10px] font-display uppercase tracking-[0.2em] font-semibold transition-all duration-300 flex items-center gap-1.5 ${
-                isOutOfStock
-                  ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
-                  : addedAnimation
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D]'
-              }`}
-            >
-              {isOutOfStock ? (
-                <span>{lang === 'de' ? 'Ausverkauft' : 'Sold Out'}</span>
-              ) : addedAnimation ? (
-                <>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>{lang === 'de' ? 'Hinzugefügt' : 'Added'}</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                  <span>{lang === 'de' ? 'In die Tasche' : 'Add to Bag'}</span>
-                </>
-              )}
-            </button>
+          <div className="flex items-center gap-1 text-[10.5px] text-[#7A7A7A] font-display uppercase tracking-wider">
+            <span>{lengthsRange}</span>
           </div>
         </div>
       </div>

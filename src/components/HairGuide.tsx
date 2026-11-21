@@ -167,7 +167,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
           <div className="lg:col-span-5 relative">
             <div className="rounded-[2px] overflow-hidden aspect-[16/10] bg-[#F4F3EF] border border-[#E8E6E1]">
               <img
-                src="https://www.macrown.org/wp-content/uploads/2025/01/MRDC2126.jpg"
+                src="/images/MRDC2126.jpg"
                 alt="Macrown Atelier Craftsmanship"
                 className="w-full h-full object-cover"
                 loading="lazy"

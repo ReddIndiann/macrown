@@ -44,7 +44,12 @@ export default function App() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            // Auto-migrate any legacy remote URLs to local /images/ paths
+            return parsed.map((p: Product) => ({
+              ...p,
+              image: p.image?.replace(/^https:\/\/www\.macrown\.org\/wp-content\/uploads\/\d{4}\/\d{2}\//, '/images/'),
+              hoverImage: p.hoverImage?.replace(/^https:\/\/www\.macrown\.org\/wp-content\/uploads\/\d{4}\/\d{2}\//, '/images/'),
+            }));
           }
         }
       } catch (e) {

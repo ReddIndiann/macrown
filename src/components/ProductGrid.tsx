@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ProductCard from './ProductCard';
+import ProductPreviewModal from './ProductPreviewModal';
 import { PRODUCTS } from '../data';
 import type { Product, Lang } from '../data';
 
@@ -26,6 +27,7 @@ export default function ProductGrid({
 }: ProductGridProps) {
   const [hairTypeFilter, setHairTypeFilter] = useState<'all' | 'Lux Hair' | 'Virgin Hair'>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
 
   // Filter products by category & hair grade
   let filtered = products.filter((p) => {
@@ -156,13 +158,14 @@ export default function ProductGrid({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 items-stretch">
               {filtered.slice(0, previewLimit).map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
                   lang={lang}
                   t={t}
+                  onPreview={(p) => setPreviewProduct(p)}
                   onAddToCart={onAddToCart}
                 />
               ))}
@@ -205,6 +208,16 @@ export default function ProductGrid({
           </>
         )}
       </div>
+
+      {/* Product Preview Modal */}
+      <ProductPreviewModal
+        product={previewProduct}
+        isOpen={!!previewProduct}
+        onClose={() => setPreviewProduct(null)}
+        lang={lang}
+        t={t}
+        onAddToCart={onAddToCart}
+      />
     </section>
   );
 }

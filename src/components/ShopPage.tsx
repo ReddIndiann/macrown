@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { Product, Lang } from '../data';
 import { LANG } from '../data';
 import ProductCard from './ProductCard';
+import ProductPreviewModal from './ProductPreviewModal';
 
 interface ShopPageProps {
   products: Product[];
@@ -27,6 +28,7 @@ export default function ShopPage({
   const [selectedTexture, setSelectedTexture] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
   const [gridCols, setGridCols] = useState<3 | 4>(3);
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
 
   // Available categories with counts
   const categories = useMemo(() => [
@@ -294,6 +296,7 @@ export default function ShopPage({
                 product={product}
                 lang={lang}
                 t={t}
+                onPreview={(p) => setPreviewProduct(p)}
                 onAddToCart={onAddToCart}
               />
             ))}
@@ -362,6 +365,16 @@ export default function ShopPage({
           </div>
         </div>
       </div>
+
+      {/* Product Preview Modal */}
+      <ProductPreviewModal
+        product={previewProduct}
+        isOpen={!!previewProduct}
+        onClose={() => setPreviewProduct(null)}
+        lang={lang}
+        t={t}
+        onAddToCart={onAddToCart}
+      />
     </div>
   );
 }
