@@ -819,6 +819,18 @@ export default function AdminPortal({
                         <div className="flex items-center justify-end gap-2">
                           <button
                             type="button"
+                            onClick={() => {
+                              onExitAdmin();
+                              window.location.hash = '#shop';
+                            }}
+                            className="px-2.5 py-1 text-xs text-[#8B6B23] hover:text-[#0D0D0D] border border-[#DEA43E]/40 hover:bg-[#FDF9F0] rounded-[1px] transition-colors flex items-center gap-1 font-display uppercase tracking-wider text-[10px]"
+                            title={lang === 'de' ? 'Im Online-Shop ansehen' : 'View in Live Store'}
+                          >
+                            <span>👁</span>
+                            <span className="hidden sm:inline">{lang === 'de' ? 'Im Shop' : 'View'}</span>
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleOpenEditModal(p)}
                             className="px-2.5 py-1 text-xs text-[#0D0D0D] hover:text-[#DEA43E] border border-[#E8E6E1] hover:border-[#DEA43E] rounded-[1px] transition-colors"
                           >

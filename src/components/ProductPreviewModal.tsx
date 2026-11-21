@@ -18,31 +18,32 @@ export default function ProductPreviewModal({
   t,
   onAddToCart,
 }: ProductPreviewModalProps) {
-  if (!isOpen || !product) return null;
-
-  const [selectedLength, setSelectedLength] = useState<string>(product.lengths[0]);
-  const [selectedImage, setSelectedImage] = useState<string>(product.image);
+  const [currentProductId, setCurrentProductId] = useState<string | null>(null);
+  const [selectedLength, setSelectedLength] = useState<string>('');
+  const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [addedSuccess, setAddedSuccess] = useState<boolean>(false);
 
-  // Sync state when product changes
-  useEffect(() => {
-    if (product) {
-      setSelectedLength(product.lengths[0]);
-      setSelectedImage(product.image);
-      setQuantity(1);
-      setAddedSuccess(false);
-    }
-  }, [product]);
+  // Sync state when product changes during render
+  if (product && product.id !== currentProductId) {
+    setCurrentProductId(product.id);
+    setSelectedLength(product.lengths[0]);
+    setSelectedImage(product.image);
+    setQuantity(1);
+    setAddedSuccess(false);
+  }
 
   // Handle ESC key to close
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !product) return null;
 
   const name = product.name[lang];
   const priceFormatted = (product.price / 100).toFixed(2).replace('.', ',') + ' €';
@@ -303,6 +304,21 @@ export default function ProductPreviewModal({
                     )}
                   </button>
                 </div>
+
+                {/* VIP WhatsApp Consultation Shortcut */}
+                <a
+                  href={`https://wa.me/491728123222?text=${encodeURIComponent(
+                    lang === 'de'
+                      ? `Hallo Macrown Atelier ✨ Ich interessiere mich für "${name}" in Länge ${selectedLength}. Könnt ihr mich dazu beraten?`
+                      : `Hello Macrown Atelier ✨ I am interested in "${name}" in length ${selectedLength}. Could you advise me?`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full mt-3 py-2.5 px-4 rounded-[2px] text-[10.5px] font-display uppercase tracking-wider font-semibold border border-[#DEA43E]/50 text-[#0D0D0D] hover:bg-[#FDF9F0] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{lang === 'de' ? 'VIP WhatsApp Beratung zu diesem Modell' : 'VIP WhatsApp Consultation for this piece'}</span>
+                </a>
 
                 {/* Atelier Guarantees micro-strip */}
                 <div className="grid grid-cols-2 gap-2 mt-5 pt-4 border-t border-[#F0EEE9] text-[10px] text-[#7A7A7A] font-display uppercase tracking-wider">

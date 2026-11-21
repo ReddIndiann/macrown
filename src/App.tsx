@@ -11,6 +11,7 @@ import CartDrawer from './components/CartDrawer';
 import type { CartItem } from './components/CartDrawer';
 import AdminPortal from './components/AdminPortal';
 import ShopPage from './components/ShopPage';
+import CookieBanner from './components/CookieBanner';
 
 export default function App() {
   const [lang, setLangState] = useState<Lang>(() => {
@@ -301,6 +302,8 @@ export default function App() {
         lang={lang}
         t={t}
       />
+
+      <CookieBanner lang={lang} />
     </div>
   );
 }
