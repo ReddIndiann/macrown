@@ -1,11 +1,12 @@
 import type { Lang } from '../data';
 
-export type AdminTab = 'inventory' | 'analytics' | 'categories' | 'settings';
+export type AdminTab = 'inventory' | 'orders' | 'analytics' | 'categories' | 'settings';
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
   setActiveTab: (tab: AdminTab) => void;
   productsCount: number;
+  ordersCount?: number;
   lowStockCount: number;
   outOfStockCount: number;
   currentUserEmail?: string | null;
@@ -22,6 +23,7 @@ export default function AdminSidebar({
   activeTab,
   setActiveTab,
   productsCount,
+  ordersCount,
   lowStockCount,
   outOfStockCount,
   currentUserEmail,
@@ -52,6 +54,23 @@ export default function AdminSidebar({
       ),
       badge: productsCount,
       badgeColor: 'bg-white/10 text-white/90',
+    },
+    {
+      id: 'orders' as AdminTab,
+      labelDe: 'Bestellungen & Belege',
+      labelEn: 'Orders & Receipts',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.7}
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+      ),
+      badge: ordersCount !== undefined ? ordersCount : undefined,
+      badgeColor: 'bg-[#DEA43E]/20 text-[#DEA43E] border border-[#DEA43E]/40 font-bold',
     },
     {
       id: 'analytics' as AdminTab,

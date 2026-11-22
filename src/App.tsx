@@ -299,6 +299,7 @@ export default function App() {
         items={cartItems}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
+        onClearCart={() => setCartItems([])}
         lang={lang}
         t={t}
       />

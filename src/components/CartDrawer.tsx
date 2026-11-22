@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Product, Lang } from '../data';
+import type { Product, Lang, Order } from '../data';
+import PrintableReceipt from './PrintableReceipt';
 
 export interface CartItem {
   product: Product;
@@ -13,6 +14,7 @@ interface CartDrawerProps {
   items: CartItem[];
   onUpdateQuantity: (productId: string, selectedLength: string, delta: number) => void;
   onRemoveItem: (productId: string, selectedLength: string) => void;
+  onClearCart?: () => void;
   lang: Lang;
   t: any;
 }
@@ -23,12 +25,15 @@ export default function CartDrawer({
   items,
   onUpdateQuantity,
   onRemoveItem,
+  onClearCart,
   lang,
   t,
 }: CartDrawerProps) {
   const [isCheckoutStep, setIsCheckoutStep] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'klarna' | 'paypal' | 'whatsapp'>('card');
   const [formData, setFormData] = useState({
     fullName: '',
@@ -70,13 +75,63 @@ export default function CartDrawer({
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
     const generatedId = 'MC-' + Math.floor(100000 + Math.random() * 900000);
+    const invoiceNum = 'INV-2026-' + generatedId.replace('MC-', '');
+    const calculatedTax = Math.round(totalCents - totalCents / 1.19);
+
+    const newOrder: Order = {
+      id: generatedId,
+      invoiceNumber: invoiceNum,
+      createdAt: new Date().toISOString(),
+      customer: {
+        fullName: formData.fullName || 'Kundin',
+        email: formData.email || 'kundin@macrown.org',
+        phone: formData.phone || '+49 170 1234567',
+        street: formData.street || 'Königsallee 1',
+        city: formData.city || 'Düsseldorf',
+        postalCode: formData.postalCode || '40212',
+        country: formData.country || 'Deutschland',
+      },
+      items: items.map((i) => ({
+        productId: i.product.id,
+        name: i.product.name,
+        category: i.product.category,
+        price: i.product.price,
+        quantity: i.quantity,
+        selectedLength: i.selectedLength,
+        hairType: i.product.hairType,
+        laceType: i.product.laceType,
+        image: i.product.image,
+      })),
+      paymentMethod,
+      cardBrand: paymentMethod === 'card' ? 'Visa / Mastercard' : undefined,
+      cardLast4: paymentMethod === 'card' ? '4242' : undefined,
+      subtotalCents: totalCents,
+      shippingCents: 0,
+      totalCents: totalCents,
+      taxCents: calculatedTax,
+      status: paymentMethod === 'whatsapp' ? 'processing' : 'paid',
+    };
+
+    try {
+      const stored = localStorage.getItem('macrown_orders');
+      const parsed: Order[] = stored ? JSON.parse(stored) : [];
+      localStorage.setItem('macrown_orders', JSON.stringify([newOrder, ...parsed]));
+    } catch (err) {
+      console.warn('LocalStorage order write notice:', err);
+    }
+
     setOrderId(generatedId);
+    setCurrentOrder(newOrder);
     setOrderConfirmed(true);
   };
 
   const resetAndClose = () => {
+    if (orderConfirmed) {
+      onClearCart?.();
+    }
     setIsCheckoutStep(false);
     setOrderConfirmed(false);
+    setCurrentOrder(null);
     onClose();
   };
 
@@ -184,6 +239,22 @@ export default function CartDrawer({
                 <div className="pt-4 space-y-2">
                   <button
                     type="button"
+                    onClick={() => setIsReceiptOpen(true)}
+                    className="w-full py-3 bg-[#0D0D0D] hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-white font-display text-xs uppercase tracking-wider font-bold rounded-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <svg className="w-4 h-4 text-[#DEA43E] group-hover:text-[#0D0D0D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                      />
+                    </svg>
+                    <span>{lang === 'de' ? 'Offizielle Rechnung & Beleg drucken' : 'Print Official Receipt & Invoice'}</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleWhatsAppOrder}
                     className="w-full py-3 bg-[#DEA43E] hover:bg-[#C79237] text-[#0D0D0D] font-display text-xs uppercase tracking-wider font-bold rounded-[2px] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
@@ -193,7 +264,7 @@ export default function CartDrawer({
                   <button
                     type="button"
                     onClick={resetAndClose}
-                    className="w-full py-2.5 text-xs text-[#7A7A7A] hover:text-[#0D0D0D] font-display uppercase tracking-wider"
+                    className="w-full py-2.5 text-xs text-[#7A7A7A] hover:text-[#0D0D0D] font-display uppercase tracking-wider cursor-pointer"
                   >
                     {lang === 'de' ? 'Zurück zur Boutique' : 'Back to Store'}
                   </button>
@@ -491,6 +562,14 @@ export default function CartDrawer({
           )}
         </div>
       </div>
+
+      {/* Official Printable Receipt Modal */}
+      <PrintableReceipt
+        order={currentOrder}
+        isOpen={isReceiptOpen}
+        onClose={() => setIsReceiptOpen(false)}
+        lang={lang}
+      />
     </div>
   );
 }

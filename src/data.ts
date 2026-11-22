@@ -29,6 +29,176 @@ export interface Product {
   documents?: ProductDocument[];
 }
 
+export type PaymentMethod = 'card' | 'klarna' | 'paypal' | 'whatsapp';
+export type OrderStatus = 'paid' | 'processing' | 'shipped' | 'cancelled';
+
+export interface OrderItem {
+  productId: string;
+  name: { de: string; en: string };
+  category: Product['category'];
+  price: number; // in cents
+  quantity: number;
+  selectedLength: string;
+  hairType: 'Lux Hair' | 'Virgin Hair';
+  laceType?: string;
+  image: string;
+}
+
+export interface CustomerDetails {
+  fullName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  notes?: string;
+}
+
+export interface Order {
+  id: string; // e.g. "MC-842910"
+  invoiceNumber: string; // e.g. "INV-2026-842910"
+  createdAt: string; // ISO date
+  customer: CustomerDetails;
+  items: OrderItem[];
+  paymentMethod: PaymentMethod;
+  cardBrand?: string;
+  cardLast4?: string;
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  taxCents: number; // 19% MwSt
+  status: OrderStatus;
+}
+
+export const INITIAL_ORDERS: Order[] = [
+  {
+    id: 'MC-849201',
+    invoiceNumber: 'INV-2026-849201',
+    createdAt: '2026-11-20T14:32:00Z',
+    customer: {
+      fullName: 'Aaliyah Dubois',
+      email: 'aaliyah.dubois@lux-mail.de',
+      phone: '+49 171 4920194',
+      street: 'Königsallee 58',
+      city: 'Düsseldorf',
+      postalCode: '40212',
+      country: 'Deutschland',
+    },
+    items: [
+      {
+        productId: '1',
+        name: {
+          de: 'GODFIDENCE Perücke – Body Wave HD Lace',
+          en: 'GODFIDENCE Wig – Body Wave HD Lace',
+        },
+        category: 'wigs',
+        price: 38900,
+        quantity: 1,
+        selectedLength: '24"',
+        hairType: 'Virgin Hair',
+        laceType: '13x6 Melt HD Lace',
+        image: '/images/MRDC2196.jpg',
+      },
+    ],
+    paymentMethod: 'card',
+    cardBrand: 'Mastercard',
+    cardLast4: '4821',
+    subtotalCents: 38900,
+    shippingCents: 0,
+    totalCents: 38900,
+    taxCents: 6211,
+    status: 'paid',
+  },
+  {
+    id: 'MC-848312',
+    invoiceNumber: 'INV-2026-848312',
+    createdAt: '2026-11-19T10:15:00Z',
+    customer: {
+      fullName: 'Soraya Mensah',
+      email: 'soraya.m@atelier-lifestyle.com',
+      phone: '+49 160 8820412',
+      street: 'Maximilianstraße 34',
+      city: 'München',
+      postalCode: '80539',
+      country: 'Deutschland',
+    },
+    items: [
+      {
+        productId: '2',
+        name: {
+          de: 'HD LUX Closure & Frontal Set',
+          en: 'HD LUX Closure & Frontal Set',
+        },
+        category: 'closure-frontal',
+        price: 14900,
+        quantity: 1,
+        selectedLength: '18"',
+        hairType: 'Lux Hair',
+        laceType: 'Real Invisible Swiss HD',
+        image: '/images/MRDC1822.jpg',
+      },
+      {
+        productId: '3',
+        name: {
+          de: 'Raw Virgin Human Hair Bundle – Silky Straight',
+          en: 'Raw Virgin Human Hair Bundle – Silky Straight',
+        },
+        category: 'bundles',
+        price: 9900,
+        quantity: 2,
+        selectedLength: '22"',
+        hairType: 'Virgin Hair',
+        image: '/images/MRDC2353.jpg',
+      },
+    ],
+    paymentMethod: 'card',
+    cardBrand: 'Visa',
+    cardLast4: '9012',
+    subtotalCents: 34700,
+    shippingCents: 0,
+    totalCents: 34700,
+    taxCents: 5541,
+    status: 'processing',
+  },
+  {
+    id: 'MC-847105',
+    invoiceNumber: 'INV-2026-847105',
+    createdAt: '2026-11-18T16:40:00Z',
+    customer: {
+      fullName: 'Chantal Becker',
+      email: 'chantal.becker@berlin-design.de',
+      phone: '+49 176 3918204',
+      street: 'Kurfürstendamm 194',
+      city: 'Berlin',
+      postalCode: '10707',
+      country: 'Deutschland',
+    },
+    items: [
+      {
+        productId: '1',
+        name: {
+          de: 'GODFIDENCE Perücke – Body Wave HD Lace',
+          en: 'GODFIDENCE Wig – Body Wave HD Lace',
+        },
+        category: 'wigs',
+        price: 38900,
+        quantity: 1,
+        selectedLength: '28"',
+        hairType: 'Virgin Hair',
+        laceType: '13x6 Melt HD Lace',
+        image: '/images/MRDC2196.jpg',
+      },
+    ],
+    paymentMethod: 'klarna',
+    subtotalCents: 38900,
+    shippingCents: 0,
+    totalCents: 38900,
+    taxCents: 6211,
+    status: 'shipped',
+  },
+];
+
 export const PRODUCTS: Product[] = [
   {
     id: '1',

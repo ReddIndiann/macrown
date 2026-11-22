@@ -8,8 +8,10 @@ import {
 import type { User } from 'firebase/auth';
 import { auth } from '../firebase';
 import { uploadToCloudinary } from '../cloudinary';
-import type { Product, Lang } from '../data';
+import type { Product, Lang, Order, OrderStatus } from '../data';
+import { INITIAL_ORDERS } from '../data';
 import AdminSidebar, { type AdminTab } from './AdminSidebar';
+import PrintableReceipt from './PrintableReceipt';
 
 interface AdminPortalProps {
   products: Product[];
@@ -89,6 +91,76 @@ export default function AdminPortal({
   // Sidenav & Active Tab state
   const [activeTab, setActiveTab] = useState<AdminTab>('inventory');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  // Orders & Card Transactions state
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('macrown_orders');
+        if (stored) {
+          return JSON.parse(stored);
+        }
+        localStorage.setItem('macrown_orders', JSON.stringify(INITIAL_ORDERS));
+        return INITIAL_ORDERS;
+      } catch (e) {
+        console.warn('Error reading stored orders', e);
+        return INITIAL_ORDERS;
+      }
+    }
+    return INITIAL_ORDERS;
+  });
+
+  const [ordersSearch, setOrdersSearch] = useState('');
+  const [selectedOrderStatus, setSelectedOrderStatus] = useState<string>('all');
+  const [selectedOrderPayment, setSelectedOrderPayment] = useState<string>('all');
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<Order | null>(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+
+  // Helper functions for orders
+  const saveOrders = (updated: Order[]) => {
+    setOrders(updated);
+    try {
+      localStorage.setItem('macrown_orders', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Error saving orders', e);
+    }
+  };
+
+  const handleUpdateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
+    const updated = orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o));
+    saveOrders(updated);
+  };
+
+  const handleDeleteOrder = (orderId: string) => {
+    if (window.confirm(lang === 'de' ? 'Bestellung unwiderruflich löschen?' : 'Permanently delete this order?')) {
+      const updated = orders.filter((o) => o.id !== orderId);
+      saveOrders(updated);
+    }
+  };
+
+  const handleOpenReceiptModal = (order: Order) => {
+    setSelectedReceiptOrder(order);
+    setIsReceiptModalOpen(true);
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const q = ordersSearch.toLowerCase().trim();
+    const matchesSearch =
+      q === '' ||
+      order.id.toLowerCase().includes(q) ||
+      order.invoiceNumber.toLowerCase().includes(q) ||
+      order.customer.fullName.toLowerCase().includes(q) ||
+      order.customer.email.toLowerCase().includes(q) ||
+      order.customer.city.toLowerCase().includes(q);
+
+    const matchesStatus =
+      selectedOrderStatus === 'all' || order.status === selectedOrderStatus;
+
+    const matchesPayment =
+      selectedOrderPayment === 'all' || order.paymentMethod === selectedOrderPayment;
+
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
 
   // Inventory filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -520,6 +592,7 @@ export default function AdminPortal({
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         productsCount={products.length}
+        ordersCount={orders.length}
         lowStockCount={lowStockCount}
         outOfStockCount={outOfStockCount}
         currentUserEmail={currentUser?.email}
@@ -553,6 +626,7 @@ export default function AdminPortal({
               </div>
               <h1 className="font-serif text-base sm:text-lg text-[#0D0D0D] leading-tight font-normal">
                 {activeTab === 'inventory' && (lang === 'de' ? 'Inventar & Produktkatalog' : 'Inventory & Catalog')}
+                {activeTab === 'orders' && (lang === 'de' ? 'Bestellungen, Kartenzahlungen & Belege' : 'Orders, Cards & Receipts')}
                 {activeTab === 'analytics' && (lang === 'de' ? 'Bestandsanalyse & Kennzahlen' : 'Stock & KPIs Analytics')}
                 {activeTab === 'categories' && (lang === 'de' ? 'Kategorien & Kollektionen' : 'Categories & Collections')}
                 {activeTab === 'settings' && (lang === 'de' ? 'Firebase & Cloud Status' : 'Firebase & Cloud Settings')}
@@ -861,6 +935,330 @@ export default function AdminPortal({
           )}
         </div>
           </>
+        )}
+
+        {/* TAB: ORDERS & PRINTABLE RECEIPTS */}
+        {activeTab === 'orders' && (
+          <div className="space-y-6">
+            {/* KPI Cards Bar */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-[#7A7A7A] font-semibold block mb-1">
+                  {lang === 'de' ? 'Gesamtumsatz (Brutto)' : 'Total Revenue'}
+                </span>
+                <div className="font-serif text-2xl font-normal text-[#0D0D0D]">
+                  {(orders.reduce((acc, o) => acc + o.totalCents, 0) / 100).toFixed(2).replace('.', ',')} €
+                </div>
+                <span className="text-[10px] text-emerald-700 font-medium mt-1 inline-block">
+                  {lang === 'de' ? '100% ateliergeprüft' : '100% atelier verified'}
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-[#7A7A7A] font-semibold block mb-1">
+                  {lang === 'de' ? 'Aufträge Gesamt' : 'Total Orders'}
+                </span>
+                <div className="font-serif text-2xl font-normal text-[#0D0D0D]">
+                  {orders.length}
+                </div>
+                <span className="text-[10px] text-[#7A7A7A] mt-1 inline-block">
+                  {lang === 'de' ? 'Eingegangene Bestellungen' : 'Customer Orders'}
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-[#DEA43E] font-semibold block mb-1">
+                  {lang === 'de' ? 'Kartenzahlungen (3DS)' : 'Card Transactions'}
+                </span>
+                <div className="font-serif text-2xl font-normal text-[#DEA43E]">
+                  {(
+                    orders
+                      .filter((o) => o.paymentMethod === 'card')
+                      .reduce((acc, o) => acc + o.totalCents, 0) / 100
+                  )
+                    .toFixed(2)
+                    .replace('.', ',')}{' '}
+                  €
+                </div>
+                <span className="text-[10px] text-[#7A7A7A] mt-1 inline-block">
+                  {orders.filter((o) => o.paymentMethod === 'card').length} {lang === 'de' ? 'Kreditkarten-Transaktionen' : 'Credit Card Orders'}
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs">
+                <span className="text-[10px] font-display uppercase tracking-widest text-amber-700 font-semibold block mb-1">
+                  {lang === 'de' ? 'In Ausführung / Offen' : 'Fulfillment Queue'}
+                </span>
+                <div className="font-serif text-2xl font-normal text-amber-700">
+                  {orders.filter((o) => o.status === 'processing' || o.status === 'paid').length}
+                </div>
+                <span className="text-[10px] text-amber-700 font-medium mt-1 inline-block">
+                  {lang === 'de' ? 'Bereit für DHL Express' : 'Ready for DHL Express'}
+                </span>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="bg-white p-4 sm:p-5 rounded-[2px] border border-[#E8E6E1] shadow-xs flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+              <div className="relative flex-1 max-w-md">
+                <svg
+                  className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7A7A7A]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder={
+                    lang === 'de'
+                      ? 'Bestell-Nr., Rechnungs-Nr., Kundin, Stadt...'
+                      : 'Search order ID, invoice, customer, city...'
+                  }
+                  value={ordersSearch}
+                  onChange={(e) => setOrdersSearch(e.target.value)}
+                  className="w-full bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-[#DEA43E]"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Status Filter */}
+                <select
+                  value={selectedOrderStatus}
+                  onChange={(e) => setSelectedOrderStatus(e.target.value)}
+                  className="bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
+                >
+                  <option value="all">{lang === 'de' ? 'Alle Status' : 'All Statuses'}</option>
+                  <option value="paid">{lang === 'de' ? 'Bezahlt' : 'Paid'}</option>
+                  <option value="processing">{lang === 'de' ? 'In Bearbeitung' : 'Processing'}</option>
+                  <option value="shipped">{lang === 'de' ? 'Versendet' : 'Shipped'}</option>
+                  <option value="cancelled">{lang === 'de' ? 'Storniert' : 'Cancelled'}</option>
+                </select>
+
+                {/* Payment Method Filter */}
+                <select
+                  value={selectedOrderPayment}
+                  onChange={(e) => setSelectedOrderPayment(e.target.value)}
+                  className="bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] px-3 py-2 text-xs text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
+                >
+                  <option value="all">{lang === 'de' ? 'Alle Zahlungsarten' : 'All Payment Methods'}</option>
+                  <option value="card">{lang === 'de' ? 'Kreditkarte (Visa / Mastercard)' : 'Credit Card'}</option>
+                  <option value="klarna">Klarna</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="whatsapp">VIP WhatsApp Concierge</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Orders Table */}
+            <div className="bg-white rounded-[2px] border border-[#E8E6E1] shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-[#F4F3EF] border-b border-[#E8E6E1] text-[10px] font-display uppercase tracking-wider text-[#666666]">
+                      <th className="py-3 px-4">{lang === 'de' ? 'Bestell- & Rechnungs-Nr.' : 'Order & Invoice'}</th>
+                      <th className="py-3 px-4">{lang === 'de' ? 'Kundin & Anschrift' : 'Customer & Address'}</th>
+                      <th className="py-3 px-4">{lang === 'de' ? 'Zahlungsart & Autorisierung' : 'Payment Method'}</th>
+                      <th className="py-3 px-4">{lang === 'de' ? 'Artikel' : 'Items'}</th>
+                      <th className="py-3 px-4 text-right">{lang === 'de' ? 'Betrag' : 'Total'}</th>
+                      <th className="py-3 px-4 text-center">{lang === 'de' ? 'Status' : 'Status'}</th>
+                      <th className="py-3 px-4 text-right">{lang === 'de' ? 'Beleg & Aktionen' : 'Receipt & Actions'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E8E6E1]">
+                    {filteredOrders.map((order) => {
+                      const formattedDate = new Date(order.createdAt).toLocaleDateString(
+                        lang === 'de' ? 'de-DE' : 'en-US',
+                        {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      );
+
+                      return (
+                        <tr key={order.id} className="hover:bg-[#FAF9F7] transition-colors">
+                          {/* Order ID & Date */}
+                          <td className="py-3.5 px-4 align-top">
+                            <span className="font-mono font-bold text-[#0D0D0D] block text-xs">
+                              {order.id}
+                            </span>
+                            <span className="text-[10.5px] font-mono text-[#8B6B23] block">
+                              {order.invoiceNumber}
+                            </span>
+                            <span className="text-[10px] text-[#7A7A7A] block mt-0.5">
+                              {formattedDate}
+                            </span>
+                          </td>
+
+                          {/* Customer Details */}
+                          <td className="py-3.5 px-4 align-top">
+                            <p className="font-semibold text-[#0D0D0D]">{order.customer.fullName}</p>
+                            <p className="text-[11px] text-[#666666]">
+                              {order.customer.postalCode} {order.customer.city}
+                            </p>
+                            <p className="text-[10.5px] text-[#888888] font-mono">{order.customer.email}</p>
+                            <p className="text-[10.5px] text-[#888888] font-mono">{order.customer.phone}</p>
+                          </td>
+
+                          {/* Payment Method */}
+                          <td className="py-3.5 px-4 align-top">
+                            {order.paymentMethod === 'card' && (
+                              <div className="space-y-1">
+                                <div className="inline-flex items-center gap-1.5 bg-[#FDF9F0] border border-[#DEA43E]/40 px-2 py-0.5 rounded-[1px]">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                  <span className="font-semibold text-[#0D0D0D] text-[11px]">
+                                    {order.cardBrand || 'Kreditkarte'}
+                                  </span>
+                                  <span className="font-mono text-[10px] text-[#8B6B23]">
+                                    •••• {order.cardLast4 || '4242'}
+                                  </span>
+                                </div>
+                                <span className="block text-[9.5px] text-emerald-800 font-display uppercase tracking-widest font-bold">
+                                  ✓ 3D Secure 2.0 Verifiziert
+                                </span>
+                              </div>
+                            )}
+
+                            {order.paymentMethod === 'klarna' && (
+                              <div className="space-y-1">
+                                <span className="inline-block px-2 py-0.5 bg-pink-50 border border-pink-200 text-pink-900 font-semibold rounded-[1px] text-[11px]">
+                                  Klarna Rechnung
+                                </span>
+                                <span className="block text-[9.5px] text-[#7A7A7A]">Pay in 30 Tagen</span>
+                              </div>
+                            )}
+
+                            {order.paymentMethod === 'paypal' && (
+                              <div className="space-y-1">
+                                <span className="inline-block px-2 py-0.5 bg-sky-50 border border-sky-200 text-sky-900 font-semibold rounded-[1px] text-[11px]">
+                                  PayPal Express
+                                </span>
+                                <span className="block text-[9.5px] text-sky-700">Käuferschutz</span>
+                              </div>
+                            )}
+
+                            {order.paymentMethod === 'whatsapp' && (
+                              <div className="space-y-1">
+                                <span className="inline-block px-2 py-0.5 bg-[#FDF9F0] border border-[#DEA43E] text-[#8B6B23] font-semibold rounded-[1px] text-[11px]">
+                                  VIP Concierge
+                                </span>
+                                <span className="block text-[9.5px] text-[#7A7A7A]">Atelier-Rechnung</span>
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Items Summary */}
+                          <td className="py-3.5 px-4 align-top max-w-xs">
+                            <div className="space-y-1.5">
+                              {order.items.map((item, idx) => (
+                                <div key={idx} className="text-xs">
+                                  <span className="font-medium text-[#0D0D0D]">
+                                    {item.quantity}x {item.name[lang] || item.name.de}
+                                  </span>
+                                  <span className="text-[10.5px] text-[#777777] block">
+                                    Länge: {item.selectedLength} • {item.hairType}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+
+                          {/* Total Gross */}
+                          <td className="py-3.5 px-4 align-top text-right">
+                            <span className="font-serif font-bold text-sm text-[#0D0D0D] block">
+                              {(order.totalCents / 100).toFixed(2).replace('.', ',')} €
+                            </span>
+                            <span className="text-[10px] text-[#777777] block font-mono">
+                              inkl. 19% MwSt.
+                            </span>
+                          </td>
+
+                          {/* Order Status Dropdown */}
+                          <td className="py-3.5 px-4 align-top text-center">
+                            <select
+                              value={order.status}
+                              onChange={(e) =>
+                                handleUpdateOrderStatus(order.id, e.target.value as OrderStatus)
+                              }
+                              className={`text-[10.5px] font-display uppercase tracking-wider font-semibold rounded-[1px] px-2 py-1 border transition-colors cursor-pointer focus:outline-none ${
+                                order.status === 'paid'
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                  : order.status === 'processing'
+                                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                  : order.status === 'shipped'
+                                  ? 'bg-sky-50 text-sky-800 border-sky-300'
+                                  : 'bg-rose-50 text-rose-800 border-rose-300'
+                              }`}
+                            >
+                              <option value="paid">{lang === 'de' ? 'Bezahlt' : 'Paid'}</option>
+                              <option value="processing">{lang === 'de' ? 'In Bearbeitung' : 'Processing'}</option>
+                              <option value="shipped">{lang === 'de' ? 'Versendet' : 'Shipped'}</option>
+                              <option value="cancelled">{lang === 'de' ? 'Storniert' : 'Cancelled'}</option>
+                            </select>
+                          </td>
+
+                          {/* Actions: Print Receipt & Delete */}
+                          <td className="py-3.5 px-4 align-top text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenReceiptModal(order)}
+                                className="px-3 py-1.5 text-xs text-[#8B6B23] hover:text-[#0D0D0D] border border-[#DEA43E]/50 hover:bg-[#FDF9F0] rounded-[1px] transition-colors flex items-center gap-1.5 font-display uppercase tracking-wider text-[10px] font-bold cursor-pointer shadow-2xs"
+                                title="Offiziellen Beleg / Rechnung öffnen & drucken"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                                  />
+                                </svg>
+                                <span>{lang === 'de' ? 'Rechnung drucken' : 'Print Receipt'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="p-1.5 text-neutral-400 hover:text-rose-600 rounded-[1px] transition-colors cursor-pointer"
+                                title={lang === 'de' ? 'Bestellung löschen' : 'Delete order'}
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.7}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {filteredOrders.length === 0 && (
+                <div className="py-12 text-center text-xs text-[#7A7A7A]">
+                  {lang === 'de'
+                    ? 'Keine Bestellungen gefunden, die den Suchkriterien entsprechen.'
+                    : 'No orders found matching your search criteria.'}
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* TAB 2: ANALYTICS & STOCK HEALTH */}
@@ -1375,6 +1773,17 @@ export default function AdminPortal({
           </div>
         </div>
       )}
+
+      {/* Official Atelier Printable Receipt Modal for Admin */}
+      <PrintableReceipt
+        order={selectedReceiptOrder}
+        isOpen={isReceiptModalOpen}
+        onClose={() => {
+          setIsReceiptModalOpen(false);
+          setSelectedReceiptOrder(null);
+        }}
+        lang={lang}
+      />
     </div>
   );
 }
