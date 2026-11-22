@@ -115,34 +115,41 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
     <section id="hero" className="relative w-full bg-[#0D0D0D] text-white overflow-hidden border-b border-[#E8E6E1]">
       {/* CINEMATIC FULL-BLEED STAGE */}
       <div className="relative w-full min-h-[85vh] lg:min-h-[92vh] flex items-center justify-center">
-        {/* Background Visual Layer */}
-        {activeSlide.type === 'video' ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            loop
-            muted={isMuted}
-            playsInline
-            poster={activeSlide.poster}
-            className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
-          >
-            <source src={activeSlide.src} type="video/mp4" />
-            <img
-              src={activeSlide.poster}
-              alt="Macrown Hair Video Fallback"
-              className="w-full h-full object-cover"
-            />
-          </video>
-        ) : (
-          <div className="absolute inset-0 w-full h-full overflow-hidden">
-            <img
-              src={activeSlide.src}
-              alt={activeSlide.title}
-              className="w-full h-full object-cover object-center scale-105 animate-pulse duration-[8000ms]"
-              loading="eager"
-            />
-          </div>
-        )}
+        {/* Background Visual Layer: Seamless Crossfade Stack */}
+        {slides.map((slide, idx) => {
+          const isActive = idx === currentSlide;
+          return (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                isActive ? 'opacity-100 z-0' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {slide.type === 'video' ? (
+                <video
+                  ref={idx === 0 ? videoRef : undefined}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  poster={slide.poster}
+                  className="w-full h-full object-cover object-center"
+                >
+                  <source src={slide.src} type="video/mp4" />
+                </video>
+              ) : (
+                <img
+                  src={slide.src}
+                  alt={slide.title}
+                  className={`w-full h-full object-cover object-center transition-transform duration-[8500ms] ease-out ${
+                    isActive ? 'scale-106' : 'scale-100'
+                  }`}
+                  loading="eager"
+                />
+              )}
+            </div>
+          );
+        })}
 
         {/* Luxury Cinema Scrim Overlays for Pristine Legibility & Depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-black/45 to-[#0D0D0D]/70 pointer-events-none" />
@@ -210,10 +217,13 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
           ›
         </button>
 
-        {/* Centered Editorial Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center flex flex-col items-center">
+        {/* Centered Editorial Content with smooth animated transition per slide */}
+        <div
+          key={currentSlide}
+          className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center flex flex-col items-center animate-luxury-fade"
+        >
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-3 mb-5 sm:mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-3 mb-5 sm:mb-6">
             <span className="w-6 sm:w-10 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-xs font-display tracking-[0.32em] text-[#DEA43E] font-semibold uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               {lang === 'de' ? activeSlide.eyebrowDe : activeSlide.eyebrowEn}
@@ -244,7 +254,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
             <a
               href="#shop"
               onClick={handleShopClick}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-9 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display font-bold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-[0_6px_24px_rgba(0,0,0,0.5)] group cursor-pointer"
+              className="btn-shimmer w-full sm:w-auto inline-flex items-center justify-center px-9 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display font-bold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-[0_6px_24px_rgba(0,0,0,0.5)] group cursor-pointer"
             >
               <span>{t.hero.shopBtn}</span>
               <svg
@@ -272,7 +282,11 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
             {t.trust.map((item, index) => (
-              <div key={index} className="flex items-start gap-3">
+              <div
+                key={index}
+                className="flex items-start gap-3 reveal-on-scroll"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
                 <div className="w-8 h-8 rounded-[2px] border border-[#DEA43E]/40 bg-[#FDF9F0] flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-[#DEA43E] text-xs font-serif font-bold">✦</span>
                 </div>

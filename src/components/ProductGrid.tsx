@@ -52,7 +52,7 @@ export default function ProductGrid({
     <section id="shop" className="py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#E8E6E1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll">
           <div className="inline-flex items-center gap-2.5 mb-3">
             <span className="w-6 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
@@ -159,21 +159,26 @@ export default function ProductGrid({
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 items-stretch">
-              {filtered.slice(0, previewLimit).map((product) => (
-                <ProductCard
+              {filtered.slice(0, previewLimit).map((product, idx) => (
+                <div
                   key={product.id}
-                  product={product}
-                  lang={lang}
-                  t={t}
-                  onPreview={(p) => setPreviewProduct(p)}
-                  onAddToCart={onAddToCart}
-                />
+                  className="reveal-on-scroll h-full"
+                  style={{ transitionDelay: `${idx * 120}ms` }}
+                >
+                  <ProductCard
+                    product={product}
+                    lang={lang}
+                    t={t}
+                    onPreview={(p) => setPreviewProduct(p)}
+                    onAddToCart={onAddToCart}
+                  />
+                </div>
               ))}
             </div>
 
             {/* View Full Collection / More Button */}
             {onViewMore && (
-              <div className="mt-14 text-center flex flex-col items-center">
+              <div className="mt-14 text-center flex flex-col items-center reveal-on-scroll">
                 <div className="flex items-center gap-2 text-xs text-[#7A7A7A] mb-4 font-display uppercase tracking-widest">
                   <span className="w-8 h-px bg-[#E8E6E1]" />
                   <span>
@@ -187,7 +192,7 @@ export default function ProductGrid({
                 <button
                   type="button"
                   onClick={onViewMore}
-                  className="inline-flex items-center gap-3 px-10 py-4 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-[0.25em] font-bold rounded-[2px] transition-all duration-300 shadow-md group cursor-pointer"
+                  className="btn-shimmer inline-flex items-center gap-3 px-10 py-4 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-[0.25em] font-bold rounded-[2px] transition-all duration-300 shadow-md group cursor-pointer"
                 >
                   <span>
                     {lang === 'de'

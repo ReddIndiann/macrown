@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { REAL_REVIEWS, LANG } from '../data';
-import type { Lang } from '../data';
+import type { Lang, FAQItem, AtelierContent } from '../data';
 
 export function Testimonials({ t }: { t: typeof LANG.de }) {
   const sec = t.testimonialsSection;
@@ -9,7 +9,7 @@ export function Testimonials({ t }: { t: typeof LANG.de }) {
     <section id="testimonials" className="py-20 lg:py-28 bg-[#FFFFFF] border-b border-[#E8E6E1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
           <div className="inline-flex items-center gap-2.5 mb-3">
             <span className="w-6 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
@@ -30,7 +30,8 @@ export function Testimonials({ t }: { t: typeof LANG.de }) {
           {REAL_REVIEWS.map((rev, index) => (
             <div
               key={index}
-              className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] flex flex-col justify-between shadow-xs luxury-hover"
+              className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] flex flex-col justify-between shadow-xs luxury-hover reveal-on-scroll"
+              style={{ transitionDelay: `${index * 120}ms` }}
             >
               <div>
                 {/* 5 Warm Gold Stars */}
@@ -78,7 +79,7 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
     <section className="py-16 bg-[#0D0D0D] text-white relative overflow-hidden border-b border-[#DEA43E]/20">
       <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[url('/images/MRDC2119.jpg')] bg-cover bg-center opacity-15 pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-2xl">
+        <div className="max-w-2xl reveal-on-scroll">
           <span className="text-[10px] font-display uppercase tracking-[0.28em] text-[#DEA43E] font-bold block mb-3">
             {consult.badge}
           </span>
@@ -94,7 +95,7 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
               href="https://wa.me/491728123222"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display uppercase tracking-[0.25em] font-bold rounded-[2px] hover:bg-[#C79237] transition-all shadow-md"
+              className="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display uppercase tracking-[0.25em] font-bold rounded-[2px] hover:bg-[#C79237] transition-all shadow-md"
             >
               <span>{consult.btn}</span>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,15 +113,33 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
   );
 }
 
-export function FAQ({ t }: { t: typeof LANG.de }) {
+export function FAQ({
+  t,
+  faqs,
+  lang = 'de',
+}: {
+  t: typeof LANG.de;
+  faqs?: FAQItem[];
+  lang?: Lang;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const faq = t.faqSection;
+
+  const items =
+    faqs && faqs.length > 0
+      ? [...faqs]
+          .sort((a, b) => a.order - b.order)
+          .map((item) => ({
+            q: item.question[lang] || item.question.de,
+            a: item.answer[lang] || item.answer.de,
+          }))
+      : faq.items;
 
   return (
     <section id="faq" className="py-20 lg:py-28 bg-[#F9F8F6] border-b border-[#E8E6E1]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 reveal-on-scroll">
           <div className="inline-flex items-center gap-2.5 mb-3">
             <span className="w-6 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
@@ -137,8 +156,8 @@ export function FAQ({ t }: { t: typeof LANG.de }) {
         </div>
 
         {/* Accordion List */}
-        <div className="space-y-3.5">
-          {faq.items.map((item, i) => {
+        <div className="space-y-3.5 reveal-on-scroll delay-150">
+          {items.map((item, i) => {
             const isOpen = openIndex === i;
 
             return (
@@ -149,7 +168,7 @@ export function FAQ({ t }: { t: typeof LANG.de }) {
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="w-full flex justify-between items-center px-6 py-5 text-left hover:bg-[#FAF9F7] transition-colors focus:outline-none"
+                  className="w-full flex justify-between items-center px-6 py-5 text-left hover:bg-[#FAF9F7] transition-colors focus:outline-none cursor-pointer"
                   aria-expanded={isOpen}
                 >
                   <span className="font-serif text-lg font-normal text-[#0D0D0D] pr-4">
@@ -166,11 +185,18 @@ export function FAQ({ t }: { t: typeof LANG.de }) {
                   </div>
                 </button>
 
-                {isOpen && (
-                  <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#555555] font-light leading-relaxed border-t border-[#E8E6E1] bg-[#FDFDFD]">
-                    <p>{item.a}</p>
+                {/* Smooth CSS Grid Transition Accordion */}
+                <div
+                  className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                    isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#555555] font-light leading-relaxed border-t border-[#E8E6E1] bg-[#FDFDFD]">
+                      <p>{item.a}</p>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
@@ -180,9 +206,31 @@ export function FAQ({ t }: { t: typeof LANG.de }) {
   );
 }
 
-export function Footer({ lang, t, onOpenAdmin }: { lang: Lang; t: typeof LANG.de; onOpenAdmin?: () => void }) {
+export function Footer({
+  lang,
+  t,
+  onOpenAdmin,
+  atelierContent,
+}: {
+  lang: Lang;
+  t: typeof LANG.de;
+  onOpenAdmin?: () => void;
+  atelierContent?: AtelierContent;
+}) {
   const f = t.footer;
   const [newsletterSent, setNewsletterSent] = useState(false);
+
+  const aboutText =
+    atelierContent?.footerAbout[lang] ||
+    atelierContent?.footerAbout.de ||
+    f.aboutText;
+  const tagline =
+    atelierContent?.footerTagline[lang] ||
+    atelierContent?.footerTagline.de ||
+    f.tagline;
+  const phone = atelierContent?.phone || f.phone;
+  const email = atelierContent?.email || f.email;
+  const hours = atelierContent?.hours || f.hours;
 
   return (
     <footer className="bg-[#0D0D0D] text-white pt-20 pb-12 border-t border-[#DEA43E]/20">
@@ -210,11 +258,11 @@ export function Footer({ lang, t, onOpenAdmin }: { lang: Lang; t: typeof LANG.de
             </div>
 
             <p className="text-xs text-[#B5B5B5] leading-relaxed mb-6 font-light max-w-sm">
-              {f.aboutText}
+              {aboutText}
             </p>
 
             <blockquote className="font-serif italic text-sm text-[#DEA43E] border-l border-[#DEA43E] pl-3 py-1">
-              „{f.tagline}“
+              „{tagline}“
             </blockquote>
           </div>
 
@@ -248,10 +296,10 @@ export function Footer({ lang, t, onOpenAdmin }: { lang: Lang; t: typeof LANG.de
                   WhatsApp Concierge
                 </span>
                 <a
-                  href="https://wa.me/491728123222"
+                  href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
                   className="font-mono text-white hover:text-[#DEA43E] transition-colors"
                 >
-                  {f.phone}
+                  {phone}
                 </a>
               </li>
               <li>
@@ -259,17 +307,17 @@ export function Footer({ lang, t, onOpenAdmin }: { lang: Lang; t: typeof LANG.de
                   E-Mail
                 </span>
                 <a
-                  href={`mailto:${f.email}`}
+                  href={`mailto:${email}`}
                   className="hover:text-[#DEA43E] transition-colors"
                 >
-                  {f.email}
+                  {email}
                 </a>
               </li>
               <li>
                 <span className="block text-[9.5px] text-[#7A7A7A] uppercase tracking-[0.2em] mb-0.5">
                   Service-Zeiten
                 </span>
-                <span>{f.hours}</span>
+                <span>{hours}</span>
               </li>
             </ul>
           </div>

@@ -34,7 +34,6 @@ export default function CartDrawer({
   const [orderId, setOrderId] = useState('');
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'klarna' | 'paypal' | 'whatsapp'>('card');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -102,14 +101,13 @@ export default function CartDrawer({
         laceType: i.product.laceType,
         image: i.product.image,
       })),
-      paymentMethod,
-      cardBrand: paymentMethod === 'card' ? 'Visa / Mastercard' : undefined,
-      cardLast4: paymentMethod === 'card' ? '4242' : undefined,
+      paymentMethod: 'paypal',
+      transactionId: 'PP-TX-' + Math.floor(10000000 + Math.random() * 90000000),
       subtotalCents: totalCents,
       shippingCents: 0,
       totalCents: totalCents,
       taxCents: calculatedTax,
-      status: paymentMethod === 'whatsapp' ? 'processing' : 'paid',
+      status: 'paid',
     };
 
     try {
@@ -365,73 +363,37 @@ export default function CartDrawer({
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-[2px] border border-[#E8E6E1] space-y-2">
-                  <span className="font-display uppercase tracking-wider text-[10px] text-[#DEA43E] font-bold block mb-1">
-                    {lang === 'de' ? '2. Zahlungsart wählen' : '2. Payment Method'}
-                  </span>
+                {/* 2. PAYPAL EXPRESS PAYMENT PANEL */}
+                <div className="bg-[#FFFFFF] p-4 rounded-[2px] border border-[#003087]/25 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-display uppercase tracking-wider text-[10px] text-[#003087] font-bold flex items-center gap-1.5">
+                      <span className="font-serif italic font-extrabold text-sm text-[#003087]">P</span>
+                      <span className="font-serif italic font-extrabold text-sm text-[#0079C1] -ml-1.5">P</span>
+                      <span className="font-sans font-bold tracking-normal ml-0.5 text-xs text-[#0D0D0D]">PayPal Express Checkout</span>
+                    </span>
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 text-[9.5px] font-semibold rounded-[1px] border border-emerald-300">
+                      ✓ Käuferschutz
+                    </span>
+                  </div>
 
-                  <label className={`flex items-center justify-between p-2.5 rounded-[2px] border cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-[#0D0D0D] bg-[#FDF9F0]' : 'border-[#E8E6E1]'}`}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === 'card'}
-                        onChange={() => setPaymentMethod('card')}
-                        className="accent-[#0D0D0D]"
-                      />
-                      <span className="font-medium text-[#0D0D0D]">Kreditkarte (Visa / Mastercard / Amex)</span>
-                    </div>
-                    <span className="text-[10px] text-[#7A7A7A]">3D-Secure</span>
-                  </label>
+                  <p className="text-[11px] text-[#666666] leading-relaxed">
+                    {lang === 'de'
+                      ? 'Zahle geschützt und schnell via PayPal (Konto, Lastschrift oder Kreditkarte über PayPal). Mit vollem Käuferschutz und sofortiger Auftragsbestätigung.'
+                      : 'Pay securely and quickly via PayPal (account, direct debit, or card through PayPal). Full buyer protection and instant confirmation.'}
+                  </p>
 
-                  <label className={`flex items-center justify-between p-2.5 rounded-[2px] border cursor-pointer transition-all ${paymentMethod === 'klarna' ? 'border-[#0D0D0D] bg-[#FDF9F0]' : 'border-[#E8E6E1]'}`}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === 'klarna'}
-                        onChange={() => setPaymentMethod('klarna')}
-                        className="accent-[#0D0D0D]"
-                      />
-                      <span className="font-medium text-[#0D0D0D]">Klarna (Rechnung / Ratenkauf)</span>
-                    </div>
-                    <span className="text-[10px] text-[#7A7A7A]">Klarna</span>
-                  </label>
-
-                  <label className={`flex items-center justify-between p-2.5 rounded-[2px] border cursor-pointer transition-all ${paymentMethod === 'paypal' ? 'border-[#0D0D0D] bg-[#FDF9F0]' : 'border-[#E8E6E1]'}`}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                        className="accent-[#0D0D0D]"
-                      />
-                      <span className="font-medium text-[#0D0D0D]">PayPal</span>
-                    </div>
-                    <span className="text-[10px] text-[#7A7A7A]">Käuferschutz</span>
-                  </label>
-
-                  <label className={`flex items-center justify-between p-2.5 rounded-[2px] border cursor-pointer transition-all ${paymentMethod === 'whatsapp' ? 'border-[#DEA43E] bg-[#FDF9F0]' : 'border-[#E8E6E1]'}`}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === 'whatsapp'}
-                        onChange={() => setPaymentMethod('whatsapp')}
-                        className="accent-[#DEA43E]"
-                      />
-                      <span className="font-medium text-[#0D0D0D]">VIP WhatsApp Concierge (Rechnung & Beratung)</span>
-                    </div>
-                    <span className="text-[10px] text-[#DEA43E] font-bold">VIP</span>
-                  </label>
+                  <div className="pt-2 border-t border-[#E8E6E1] flex items-center justify-between text-[10px] text-[#777777]">
+                    <span>🔒 256-Bit SSL Verschlüsselung</span>
+                    <span>⚡ DHL Express Priorität</span>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#0D0D0D] text-white hover:bg-[#DEA43E] hover:text-[#0D0D0D] text-xs font-display uppercase tracking-[0.25em] font-bold rounded-[2px] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 bg-[#0070BA] hover:bg-[#003087] text-white text-xs font-display uppercase tracking-[0.2em] font-bold rounded-[2px] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>{lang === 'de' ? `Jetzt kostenpflichtig bestellen (${totalFormatted})` : `Place Order (${totalFormatted})`}</span>
+                  <span className="font-serif italic font-extrabold text-sm">PP</span>
+                  <span>{lang === 'de' ? `Mit PayPal bezahlen (${totalFormatted})` : `Pay with PayPal (${totalFormatted})`}</span>
                 </button>
               </form>
             ) : items.length === 0 ? (

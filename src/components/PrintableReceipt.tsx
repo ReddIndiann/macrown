@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { Order, Lang } from '../data';
 
 interface PrintableReceiptProps {
@@ -14,6 +14,14 @@ export default function PrintableReceipt({
   onClose,
   lang,
 }: PrintableReceiptProps) {
+  const [docType, setDocType] = useState<'invoice' | 'packing_slip'>('invoice');
+  const [receiptLang, setReceiptLang] = useState<Lang>(lang);
+
+  // Sync with parent lang when opened
+  useEffect(() => {
+    setReceiptLang(lang);
+  }, [lang, isOpen]);
+
   // Prevent body scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -33,7 +41,7 @@ export default function PrintableReceipt({
   };
 
   const formattedDate = new Date(order.createdAt).toLocaleDateString(
-    lang === 'de' ? 'de-DE' : 'en-US',
+    receiptLang === 'de' ? 'de-DE' : 'en-US',
     {
       day: '2-digit',
       month: 'long',
@@ -49,42 +57,7 @@ export default function PrintableReceipt({
 
   const nettoCents = order.totalCents - order.taxCents;
 
-  const getPaymentMethodDisplay = () => {
-    switch (order.paymentMethod) {
-      case 'card':
-        return {
-          title: lang === 'de' ? 'Kreditkarte' : 'Credit Card',
-          sub: `${order.cardBrand || 'Visa / Mastercard'} •••• ${order.cardLast4 || '4242'} (3D Secure 2.0)`,
-          badge: 'Card / EMV 3DS',
-        };
-      case 'klarna':
-        return {
-          title: 'Klarna',
-          sub: lang === 'de' ? 'Rechnungskauf & Ratenkauf' : 'Pay in 30 Days / Financing',
-          badge: 'Klarna Pay',
-        };
-      case 'paypal':
-        return {
-          title: 'PayPal',
-          sub: lang === 'de' ? 'Verifizierte Käuferschutz-Zahlung' : 'Buyer Protection Verified',
-          badge: 'PayPal Express',
-        };
-      case 'whatsapp':
-        return {
-          title: 'VIP Concierge',
-          sub: lang === 'de' ? 'Persönliche Atelier-Bestätigung' : 'Direct Atelier Concierge Order',
-          badge: 'VIP WhatsApp',
-        };
-      default:
-        return {
-          title: 'Elektronische Zahlung',
-          sub: 'Online Checkout',
-          badge: 'Confirmed',
-        };
-    }
-  };
-
-  const paymentInfo = getPaymentMethodDisplay();
+  const isPackingSlip = docType === 'packing_slip';
 
   return (
     <div
@@ -142,15 +115,57 @@ export default function PrintableReceipt({
       {/* Floating Action Bar (hidden on print) */}
       <div className="w-full max-w-3xl my-auto">
         <div className="receipt-no-print bg-[#141414] border border-[#DEA43E]/40 text-white p-4 rounded-[2px] shadow-2xl flex flex-wrap items-center justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <div>
-              <p className="text-xs font-display uppercase tracking-wider text-white font-bold">
-                {lang === 'de' ? 'Offizieller Atelier-Beleg & Rechnung' : 'Official Atelier Receipt & Invoice'}
-              </p>
-              <p className="text-[10.5px] text-[#A69B89] font-mono">
-                {order.invoiceNumber} • {order.id}
-              </p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Document Type Switcher */}
+            <div className="flex items-center bg-white/10 p-0.5 rounded-[2px] border border-white/15">
+              <button
+                type="button"
+                onClick={() => setDocType('invoice')}
+                className={`px-3 py-1.5 text-xs font-display uppercase tracking-wider rounded-[1px] transition-all cursor-pointer font-bold ${
+                  !isPackingSlip
+                    ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                📄 {receiptLang === 'de' ? 'Rechnung (Steuer)' : 'Tax Invoice'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDocType('packing_slip')}
+                className={`px-3 py-1.5 text-xs font-display uppercase tracking-wider rounded-[1px] transition-all cursor-pointer font-bold ${
+                  isPackingSlip
+                    ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                📦 {receiptLang === 'de' ? 'Lieferschein (Paket)' : 'Packing Slip'}
+              </button>
+            </div>
+
+            {/* Language Switcher on Receipt */}
+            <div className="flex items-center bg-white/10 p-0.5 rounded-[2px] border border-white/15">
+              <button
+                type="button"
+                onClick={() => setReceiptLang('de')}
+                className={`px-2.5 py-1 text-[11px] font-display uppercase font-bold rounded-[1px] transition-all cursor-pointer ${
+                  receiptLang === 'de'
+                    ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-sm'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                DE
+              </button>
+              <button
+                type="button"
+                onClick={() => setReceiptLang('en')}
+                className={`px-2.5 py-1 text-[11px] font-display uppercase font-bold rounded-[1px] transition-all cursor-pointer ${
+                  receiptLang === 'en'
+                    ? 'bg-[#DEA43E] text-[#0D0D0D] shadow-sm'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                EN
+              </button>
             </div>
           </div>
 
@@ -168,7 +183,11 @@ export default function PrintableReceipt({
                   d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                 />
               </svg>
-              <span>{lang === 'de' ? 'Rechnung Drucken' : 'Print Receipt'}</span>
+              <span>
+                {isPackingSlip
+                  ? (receiptLang === 'de' ? 'Lieferschein Drucken' : 'Print Packing Slip')
+                  : (receiptLang === 'de' ? 'Rechnung Drucken' : 'Print Invoice')}
+              </span>
             </button>
 
             <button
@@ -176,17 +195,17 @@ export default function PrintableReceipt({
               onClick={onClose}
               className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-xs font-display uppercase tracking-wider rounded-[2px] transition-colors cursor-pointer"
             >
-              ✕ {lang === 'de' ? 'Schließen' : 'Close'}
+              ✕ {receiptLang === 'de' ? 'Schließen' : 'Close'}
             </button>
           </div>
         </div>
 
-        {/* PRINTABLE RECEIPT SHEET */}
+        {/* PRINTABLE SHEET */}
         <div
           id="macrown-printable-receipt"
           className="bg-white text-[#111111] p-8 sm:p-12 rounded-[2px] border border-[#E8E6E1] shadow-2xl font-sans"
         >
-          {/* Header Row: Macrown Brand Crest + Invoice Tag */}
+          {/* Header Row: Macrown Brand Crest + Document Tag */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b-2 border-[#0D0D0D] gap-4">
             <div>
               <h1 className="font-serif text-2xl sm:text-3xl tracking-[0.2em] uppercase font-bold text-[#0D0D0D]">
@@ -202,16 +221,18 @@ export default function PrintableReceipt({
 
             <div className="text-left sm:text-right">
               <span className="inline-block px-2.5 py-1 bg-[#FDF9F0] border border-[#DEA43E] text-[#8B6B23] text-[10px] font-display font-bold uppercase tracking-widest rounded-[1px] mb-1.5">
-                {order.status === 'paid'
-                  ? (lang === 'de' ? '✓ RECHNUNGSBETRAG BEZAHLT' : '✓ PAID IN FULL')
-                  : order.status === 'shipped'
-                  ? (lang === 'de' ? '✓ VERSENDET & BEZAHLT' : '✓ SHIPPED & PAID')
-                  : (lang === 'de' ? 'BESTÄTIGTE BESTELLUNG' : 'CONFIRMED ORDER')}
+                {isPackingSlip
+                  ? (receiptLang === 'de' ? 'WARENBEGLEITSCHEIN & PRÜFPROTOKOLL' : 'PACKING SLIP & ATELIER DISPATCH')
+                  : (receiptLang === 'de' ? '✓ BEZAHLT VIA PAYPAL' : '✓ PAID VIA PAYPAL')}
               </span>
               <h2 className="text-sm font-display uppercase font-bold tracking-wider text-[#0D0D0D]">
-                {lang === 'de' ? 'Offizielle Rechnung' : 'Official Invoice'}
+                {isPackingSlip
+                  ? (receiptLang === 'de' ? 'Atelier Lieferschein' : 'Atelier Packing Slip')
+                  : (receiptLang === 'de' ? 'Offizielle Rechnung' : 'Official Invoice')}
               </h2>
-              <p className="text-[11px] font-mono text-[#444444] mt-0.5">{order.invoiceNumber}</p>
+              <p className="text-[11px] font-mono text-[#444444] mt-0.5">
+                {isPackingSlip ? `LS-${order.id}` : order.invoiceNumber}
+              </p>
             </div>
           </div>
 
@@ -220,7 +241,9 @@ export default function PrintableReceipt({
             {/* Customer Details */}
             <div>
               <p className="text-[10px] font-display uppercase tracking-wider text-[#888888] font-bold mb-1.5">
-                {lang === 'de' ? 'Rechnungs- & Lieferadresse' : 'Billing & Shipping Address'}
+                {isPackingSlip
+                  ? (receiptLang === 'de' ? 'Empfängerin & Lieferanschrift' : 'Recipient & Shipping Address')
+                  : (receiptLang === 'de' ? 'Rechnungs- & Lieferanschrift' : 'Billing & Shipping Address')}
               </p>
               <p className="font-bold text-sm text-[#0D0D0D]">{order.customer.fullName}</p>
               <p className="text-[#333333]">{order.customer.street}</p>
@@ -238,49 +261,55 @@ export default function PrintableReceipt({
             <div className="bg-[#FAF9F7] p-4 rounded-[2px] border border-[#E8E6E1] space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-[10.5px] uppercase font-display text-[#777777]">
-                  {lang === 'de' ? 'Bestellnummer' : 'Order ID'}:
+                  {receiptLang === 'de' ? 'Bestellnummer' : 'Order ID'}:
                 </span>
                 <span className="font-mono font-bold text-[#0D0D0D]">{order.id}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="text-[10.5px] uppercase font-display text-[#777777]">
-                  {lang === 'de' ? 'Bestelldatum' : 'Order Date'}:
+                  {receiptLang === 'de' ? 'Bestelldatum' : 'Order Date'}:
                 </span>
                 <span className="text-[#0D0D0D]">{formattedDate}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="text-[10.5px] uppercase font-display text-[#777777]">
-                  {lang === 'de' ? 'Zahlungsart' : 'Payment Method'}:
+                  {receiptLang === 'de' ? 'Zahlungsart' : 'Payment Method'}:
                 </span>
                 <span className="font-semibold text-[#0D0D0D] text-right">
-                  {paymentInfo.title}
-                  <span className="block text-[9.5px] font-mono text-[#666666] font-normal">
-                    {paymentInfo.sub}
+                  PayPal Express
+                  <span className="block text-[9.5px] font-mono text-[#0070BA] font-normal">
+                    {order.transactionId || 'PP-TX-98421094'}
                   </span>
                 </span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="text-[10.5px] uppercase font-display text-[#777777]">
-                  {lang === 'de' ? 'Versandart' : 'Shipping Carrier'}:
+                  {receiptLang === 'de' ? 'Versandart' : 'Shipping Carrier'}:
                 </span>
-                <span className="text-[#0D0D0D] font-medium">DHL Express (Versichert)</span>
+                <span className="text-[#0D0D0D] font-medium">DHL Express (Priorität & Versichert)</span>
               </div>
             </div>
           </div>
 
-          {/* Itemized Order Table */}
+          {/* Itemized Table */}
           <div className="py-6 border-b border-[#E8E6E1]">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b-2 border-[#0D0D0D] text-[10px] font-display uppercase tracking-wider text-[#666666]">
                   <th className="py-2.5 px-2 w-10">Pos.</th>
-                  <th className="py-2.5 px-2">{lang === 'de' ? 'Artikel & Spezifikation' : 'Item & Specifications'}</th>
-                  <th className="py-2.5 px-2 text-center w-16">{lang === 'de' ? 'Menge' : 'Qty'}</th>
-                  <th className="py-2.5 px-2 text-right w-24">{lang === 'de' ? 'Einzelpreis' : 'Unit Price'}</th>
-                  <th className="py-2.5 px-2 text-right w-24">{lang === 'de' ? 'Gesamt' : 'Total'}</th>
+                  <th className="py-2.5 px-2">{receiptLang === 'de' ? 'Artikel & Spezifikation' : 'Item & Specifications'}</th>
+                  <th className="py-2.5 px-2 text-center w-16">{receiptLang === 'de' ? 'Menge' : 'Qty'}</th>
+                  {!isPackingSlip ? (
+                    <>
+                      <th className="py-2.5 px-2 text-right w-24">{receiptLang === 'de' ? 'Einzelpreis' : 'Unit Price'}</th>
+                      <th className="py-2.5 px-2 text-right w-24">{receiptLang === 'de' ? 'Gesamt' : 'Total'}</th>
+                    </>
+                  ) : (
+                    <th className="py-2.5 px-2 text-right w-36">{receiptLang === 'de' ? 'Atelier Prüfung' : 'Inspection'}</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E8E6E1]">
@@ -289,7 +318,7 @@ export default function PrintableReceipt({
                     <td className="py-3 px-2 font-mono text-[#888888]">{index + 1}</td>
                     <td className="py-3 px-2">
                       <p className="font-bold text-[#0D0D0D] text-xs">
-                        {item.name[lang] || item.name.de}
+                        {item.name[receiptLang] || item.name.de}
                       </p>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10.5px] text-[#666666] mt-0.5">
                         <span>Länge: <strong>{item.selectedLength}</strong></span>
@@ -298,61 +327,81 @@ export default function PrintableReceipt({
                       </div>
                     </td>
                     <td className="py-3 px-2 text-center font-mono font-medium">{item.quantity}</td>
-                    <td className="py-3 px-2 text-right font-mono text-[#444444]">
-                      {formatEuro(item.price)}
-                    </td>
-                    <td className="py-3 px-2 text-right font-mono font-bold text-[#0D0D0D]">
-                      {formatEuro(item.price * item.quantity)}
-                    </td>
+                    {!isPackingSlip ? (
+                      <>
+                        <td className="py-3 px-2 text-right font-mono text-[#444444]">
+                          {formatEuro(item.price)}
+                        </td>
+                        <td className="py-3 px-2 text-right font-mono font-bold text-[#0D0D0D]">
+                          {formatEuro(item.price * item.quantity)}
+                        </td>
+                      </>
+                    ) : (
+                      <td className="py-3 px-2 text-right text-[10px] text-emerald-700 font-semibold">
+                        ✓ HD Lace & Cuticle OK
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Totals & Tax Calculation Breakdown */}
+          {/* Totals & Tax OR Packing Slip Guarantee */}
           <div className="py-6 flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-[#E8E6E1]">
             <div className="max-w-xs text-[11px] text-[#666666] space-y-1.5">
               <p className="font-display uppercase tracking-wider text-[10px] text-[#0D0D0D] font-bold">
-                {lang === 'de' ? 'Atelier Zertifizierung' : 'Atelier Guarantee'}
+                {receiptLang === 'de' ? 'Atelier Zertifizierung & Schutz' : 'Atelier Guarantee & Protection'}
               </p>
               <p className="leading-relaxed">
-                {lang === 'de'
-                  ? 'Alle Haarteile werden vor dem DHL Express Versand im Düsseldorfer Atelier von Hand gewaschen, entwirrt und auf makellose HD-Spitzenqualität geprüft.'
-                  : 'Every raw virgin hair piece is hand-selected, cleansed, and verified for flawless Swiss HD lace melt prior to insured DHL Express dispatch.'}
+                {receiptLang === 'de'
+                  ? 'Jedes Haarteil wurde von Meisterhand gereinigt, entwirrt und in einer atmungsaktiven Macrown Seidenhülle für den DHL Express Versand vorbereitet.'
+                  : 'Every raw human hair piece was inspected, conditioned, and packaged in a breathable Macrown satin dust case for insured express transit.'}
               </p>
-              {order.paymentMethod === 'card' && (
-                <div className="mt-2 p-2 bg-[#FDF9F0] border border-[#DEA43E]/40 rounded-[2px] text-[10px] text-[#8B6B23]">
-                  ✓ <strong>Kreditkartentransaktion autorisiert:</strong> 3D Secure 2.0 Authentifizierung erfolgreich abgeschlossen.
+              <div className="mt-2 p-2 bg-[#F0F7FF] border border-[#0070BA]/30 rounded-[2px] text-[10px] text-[#003087]">
+                ✓ <strong>PayPal Verifizierung:</strong> Transaktion {order.transactionId || 'PP-TX-98421094'} mit vollem PayPal Käuferschutz autorisiert.
+              </div>
+            </div>
+
+            {!isPackingSlip ? (
+              <div className="w-full sm:w-64 space-y-2 text-xs">
+                <div className="flex justify-between text-[#666666]">
+                  <span>{receiptLang === 'de' ? 'Zwischensumme (Netto)' : 'Subtotal (Net)'}:</span>
+                  <span className="font-mono">{formatEuro(nettoCents)}</span>
                 </div>
-              )}
-            </div>
 
-            <div className="w-full sm:w-64 space-y-2 text-xs">
-              <div className="flex justify-between text-[#666666]">
-                <span>{lang === 'de' ? 'Zwischensumme (Netto)' : 'Subtotal (Net)'}:</span>
-                <span className="font-mono">{formatEuro(nettoCents)}</span>
-              </div>
+                <div className="flex justify-between text-[#666666]">
+                  <span>{receiptLang === 'de' ? 'Inkl. 19% MwSt.' : 'Incl. 19% VAT'}:</span>
+                  <span className="font-mono">{formatEuro(order.taxCents)}</span>
+                </div>
 
-              <div className="flex justify-between text-[#666666]">
-                <span>{lang === 'de' ? 'Inkl. 19% MwSt.' : 'Incl. 19% VAT'}:</span>
-                <span className="font-mono">{formatEuro(order.taxCents)}</span>
-              </div>
+                <div className="flex justify-between text-[#666666]">
+                  <span>{receiptLang === 'de' ? 'DHL Express Versand' : 'DHL Express Shipping'}:</span>
+                  <span className="font-mono font-medium text-emerald-700">0,00 € (Gratis)</span>
+                </div>
 
-              <div className="flex justify-between text-[#666666]">
-                <span>{lang === 'de' ? 'DHL Express Versand' : 'DHL Express Shipping'}:</span>
-                <span className="font-mono font-medium text-emerald-700">0,00 € (Gratis)</span>
+                <div className="pt-2 border-t-2 border-[#0D0D0D] flex justify-between items-baseline">
+                  <span className="font-display font-bold uppercase text-xs tracking-wider text-[#0D0D0D]">
+                    {receiptLang === 'de' ? 'Gesamtbetrag (Brutto)' : 'Total (Gross)'}:
+                  </span>
+                  <span className="font-serif font-bold text-xl text-[#0D0D0D]">
+                    {formatEuro(order.totalCents)}
+                  </span>
+                </div>
               </div>
-
-              <div className="pt-2 border-t-2 border-[#0D0D0D] flex justify-between items-baseline">
-                <span className="font-display font-bold uppercase text-xs tracking-wider text-[#0D0D0D]">
-                  {lang === 'de' ? 'Gesamtbetrag (Brutto)' : 'Total (Gross)'}:
-                </span>
-                <span className="font-serif font-bold text-xl text-[#0D0D0D]">
-                  {formatEuro(order.totalCents)}
-                </span>
+            ) : (
+              <div className="w-full sm:w-64 p-4 bg-[#F9F8F6] border border-[#E8E6E1] rounded-[2px] text-xs space-y-2 text-[#444444]">
+                <div className="text-[10px] font-display uppercase tracking-wider font-bold text-[#0D0D0D]">
+                  Versand-Checkliste
+                </div>
+                <div className="text-[10.5px] space-y-1">
+                  <p>✓ 100% Remy Rohhaar Echtheitszertifikat</p>
+                  <p>✓ Macrown Seiden-Aufbewahrungsbeutel</p>
+                  <p>✓ Pflegeanleitung & HD-Lace Guide</p>
+                  <p>✓ Versiegelter DHL Sicherheitsverschluss</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Legal Footer */}

@@ -62,6 +62,7 @@ export interface Order {
   customer: CustomerDetails;
   items: OrderItem[];
   paymentMethod: PaymentMethod;
+  transactionId?: string; // e.g. PayPal Transaction Code
   cardBrand?: string;
   cardLast4?: string;
   subtotalCents: number;
@@ -70,6 +71,104 @@ export interface Order {
   taxCents: number; // 19% MwSt
   status: OrderStatus;
 }
+
+export interface FAQItem {
+  id: string;
+  question: { de: string; en: string };
+  answer: { de: string; en: string };
+  category: 'general' | 'hair' | 'lace' | 'shipping' | 'returns';
+  order: number;
+}
+
+export interface AtelierContent {
+  footerTagline: { de: string; en: string };
+  footerAbout: { de: string; en: string };
+  phone: string;
+  email: string;
+  hours: string;
+}
+
+export const INITIAL_FAQS: FAQItem[] = [
+  {
+    id: 'faq-1',
+    category: 'hair',
+    order: 1,
+    question: {
+      de: 'Woher stammt das Macrown-Haar und wo wird es gefertigt?',
+      en: 'Where is Macrown hair sourced and handcrafted?',
+    },
+    answer: {
+      de: 'Unser Haar stammt aus ethisch kontrollierten Quellen in Vietnam. Jede Perücke und jedes Bündel wird in spezialisierten Manufakturen mit jahrzehntelanger Knüpf-Erfahrung von Hand gefertigt.',
+      en: 'Our hair is ethically sourced in Vietnam. Each bespoke unit and bundle is meticulously constructed in artisanal studios with generations of knotting expertise.',
+    },
+  },
+  {
+    id: 'faq-2',
+    category: 'hair',
+    order: 2,
+    question: {
+      de: 'Was ist der Unterschied zwischen Virgin Hair und Lux Hair?',
+      en: 'What is the distinction between Virgin Hair and Lux Hair?',
+    },
+    answer: {
+      de: 'Virgin Hair ist naturbelassenes Echthaar ohne chemische Behandlung – langlebig und perfekt für natürliche Styles. Lux Hair ist unsere handverlesene Spitzenqualität: besonders rein, noch seidiger und bei Bedarf bis zu einem eleganten Blondton aufhellbar.',
+      en: 'Virgin Hair is untreated human hair with natural integrity – exceptionally durable for daily wear. Lux Hair is our crown-tier grade: selected from only the healthiest donors, smoother, and bleachable up to blonde tones.',
+    },
+  },
+  {
+    id: 'faq-3',
+    category: 'lace',
+    order: 3,
+    question: {
+      de: 'Warum ist HD Lace der herkömmlichen Spitze überlegen?',
+      en: 'Why is HD Lace superior to conventional lace?',
+    },
+    answer: {
+      de: 'HD Lace (High Definition) ist mikrodünn und transparent. Es reflektiert kein Licht und verschmilzt nahtlos mit jedem Hautton, sodass kein Übergang sichtbar ist.',
+      en: 'HD (High Definition) lace is microscopic in gauge and completely transparent. It absorbs rather than reflects light, disappearing seamlessly against any skin tone.',
+    },
+  },
+  {
+    id: 'faq-4',
+    category: 'shipping',
+    order: 4,
+    question: {
+      de: 'Wie lange dauert die Anfertigung und der Versand?',
+      en: 'How long does custom crafting and shipping take?',
+    },
+    answer: {
+      de: 'Aufgrund der maßgefertigten Handarbeit in Vietnam beträgt die Lieferzeit für Flagship-Perücken ca. 14 bis 21 Werktage. Sofort verfügbare Bundles und Frontals versenden wir innerhalb von 2–4 Werktagen via DHL Express.',
+      en: 'Because our signature wigs are custom tailored in Vietnam, fulfillment takes approximately 14 to 21 days. In-stock bundles and frontals ship within 2-4 business days.',
+    },
+  },
+  {
+    id: 'faq-5',
+    category: 'returns',
+    order: 5,
+    question: {
+      de: 'Wie ist das Rückgaberecht geregelt?',
+      en: 'What is the return policy?',
+    },
+    answer: {
+      de: 'Wir gewähren ein 14-tägiges Widerrufsrecht für ungetragene, ungeschnittene Artikel in der unversehrten Originalverpackung inklusive voller Erstattung.',
+      en: 'We extend a 14-day return window for unaltered, unworn items in pristine original packaging with complete refund protection.',
+    },
+  },
+];
+
+export const INITIAL_ATELIER_CONTENT: AtelierContent = {
+  footerTagline: {
+    de: 'Schreib deine eigene Geschichte mit uns – neues Haar, neues Abenteuer!',
+    en: 'Write your own story with us – new hair, new adventure!',
+  },
+  footerAbout: {
+    de: 'Macrown Hair steht für Perfektion, Gottvertrauen und zeitlose Weiblichkeit. Handgefertigtes vietnamesisches Echthaar für deinen souveränen Auftritt.',
+    en: 'Macrown Hair is dedicated to perfection, divine confidence, and timeless femininity. Handcrafted Vietnamese human hair made for your radiant presence.',
+  },
+  phone: '+49 172 812 3222',
+  email: 'hello@macrown.org',
+  hours: 'Mo – Sa: 09:00 – 18:00 Uhr',
+};
 
 export const INITIAL_ORDERS: Order[] = [
   {
@@ -101,9 +200,8 @@ export const INITIAL_ORDERS: Order[] = [
         image: '/images/MRDC2196.jpg',
       },
     ],
-    paymentMethod: 'card',
-    cardBrand: 'Mastercard',
-    cardLast4: '4821',
+    paymentMethod: 'paypal',
+    transactionId: 'PP-TX-98421094',
     subtotalCents: 38900,
     shippingCents: 0,
     totalCents: 38900,
@@ -152,9 +250,8 @@ export const INITIAL_ORDERS: Order[] = [
         image: '/images/MRDC2353.jpg',
       },
     ],
-    paymentMethod: 'card',
-    cardBrand: 'Visa',
-    cardLast4: '9012',
+    paymentMethod: 'paypal',
+    transactionId: 'PP-TX-87410294',
     subtotalCents: 34700,
     shippingCents: 0,
     totalCents: 34700,
@@ -190,7 +287,8 @@ export const INITIAL_ORDERS: Order[] = [
         image: '/images/MRDC2196.jpg',
       },
     ],
-    paymentMethod: 'klarna',
+    paymentMethod: 'paypal',
+    transactionId: 'PP-TX-76291034',
     subtotalCents: 38900,
     shippingCents: 0,
     totalCents: 38900,

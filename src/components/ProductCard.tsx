@@ -88,6 +88,13 @@ export default function ProductCard({
           </div>
         ) : null}
 
+        {/* Quick View Slide-up Overlay on Hover */}
+        <div className="absolute inset-x-3 bottom-3 z-10 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+          <div className="w-full py-2 bg-white/95 backdrop-blur-xs text-[#0D0D0D] text-[10px] font-display uppercase tracking-widest font-bold text-center rounded-[1px] shadow-md border border-[#E8E6E1]">
+            {lang === 'de' ? 'Schnellansicht' : 'Quick View'}
+          </div>
+        </div>
+
         {/* Hover Quick View Button */}
         <div className="absolute inset-x-3 bottom-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
           <div className="w-full py-2.5 px-4 bg-white/95 backdrop-blur-xs text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-[#DEA43E] text-[10.5px] font-display uppercase tracking-[0.22em] font-bold rounded-[1px] shadow-md transition-all duration-200 border border-[#E8E6E1] flex items-center justify-center gap-2">

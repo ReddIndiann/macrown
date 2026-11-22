@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { LANG, PRODUCTS } from './data';
-import type { Lang, Product } from './data';
+import { LANG, PRODUCTS, INITIAL_FAQS, INITIAL_ATELIER_CONTENT } from './data';
+import type { Lang, Product, FAQItem, AtelierContent } from './data';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Categories from './components/Categories';
@@ -12,8 +12,11 @@ import type { CartItem } from './components/CartDrawer';
 import AdminPortal from './components/AdminPortal';
 import ShopPage from './components/ShopPage';
 import CookieBanner from './components/CookieBanner';
+import { useScrollReveal } from './hooks/useScrollReveal';
 
 export default function App() {
+  useScrollReveal();
+
   const [lang, setLangState] = useState<Lang>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -59,6 +62,58 @@ export default function App() {
     }
     return PRODUCTS;
   });
+
+  // FAQs state (persists to localStorage, editable via Admin CMS)
+  const [faqs, setFaqs] = useState<FAQItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('macrown_faqs');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+        localStorage.setItem('macrown_faqs', JSON.stringify(INITIAL_FAQS));
+      } catch (e) {
+        console.warn('Error reading stored faqs', e);
+      }
+    }
+    return INITIAL_FAQS;
+  });
+
+  const handleUpdateFaqs = (newFaqs: FAQItem[]) => {
+    setFaqs(newFaqs);
+    try {
+      localStorage.setItem('macrown_faqs', JSON.stringify(newFaqs));
+    } catch (e) {
+      console.warn('Error saving faqs', e);
+    }
+  };
+
+  // Atelier Brand & Footer Story state (persists to localStorage, editable via Admin CMS)
+  const [atelierContent, setAtelierContent] = useState<AtelierContent>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('macrown_atelier_content');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.footerAbout) return parsed;
+        }
+        localStorage.setItem('macrown_atelier_content', JSON.stringify(INITIAL_ATELIER_CONTENT));
+      } catch (e) {
+        console.warn('Error reading stored atelier content', e);
+      }
+    }
+    return INITIAL_ATELIER_CONTENT;
+  });
+
+  const handleUpdateAtelierContent = (newContent: AtelierContent) => {
+    setAtelierContent(newContent);
+    try {
+      localStorage.setItem('macrown_atelier_content', JSON.stringify(newContent));
+    } catch (e) {
+      console.warn('Error saving atelier content', e);
+    }
+  };
 
   // Admin View state (checks #admin hash or /admin path)
   const [isAdminView, setIsAdminView] = useState<boolean>(() => {
@@ -223,6 +278,10 @@ export default function App() {
       <AdminPortal
         products={products}
         onUpdateProducts={handleUpdateProducts}
+        faqs={faqs}
+        onUpdateFaqs={handleUpdateFaqs}
+        atelierContent={atelierContent}
+        onUpdateAtelierContent={handleUpdateAtelierContent}
         onExitAdmin={handleExitAdmin}
         lang={lang}
         setLang={setLang}
@@ -282,7 +341,7 @@ export default function App() {
 
             <Testimonials t={t} />
 
-            <FAQ t={t} />
+            <FAQ t={t} faqs={faqs} lang={lang} />
           </>
         )}
       </main>
@@ -291,6 +350,7 @@ export default function App() {
         lang={lang}
         t={t}
         onOpenAdmin={handleOpenAdmin}
+        atelierContent={atelierContent}
       />
 
       <CartDrawer

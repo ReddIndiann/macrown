@@ -12,7 +12,7 @@ export default function Categories({ lang, t, onSelectCategory }: CategoriesProp
     <section id="categories" className="py-20 lg:py-24 bg-[#F9F8F6] border-b border-[#E8E6E1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <div className="text-center max-w-2xl mx-auto mb-14 reveal-on-scroll">
           <div className="inline-flex items-center gap-2.5 mb-3">
             <span className="w-6 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
@@ -30,11 +30,12 @@ export default function Categories({ lang, t, onSelectCategory }: CategoriesProp
 
         {/* Categories 4-Card Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CATEGORIES_DATA.map((cat) => (
+          {CATEGORIES_DATA.map((cat, index) => (
             <div
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className="group cursor-pointer relative rounded-[2px] overflow-hidden bg-[#FFFFFF] border border-[#E8E6E1] shadow-xs luxury-hover"
+              className="group cursor-pointer relative rounded-[2px] overflow-hidden bg-[#FFFFFF] border border-[#E8E6E1] shadow-xs luxury-hover reveal-on-scroll"
+              style={{ transitionDelay: `${index * 120}ms` }}
             >
               {/* Aspect Ratio 4:5 image container */}
               <div className="relative aspect-[4/5] overflow-hidden bg-[#F4F3EF]">

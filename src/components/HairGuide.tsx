@@ -12,7 +12,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
     <section id="guide" className="py-20 lg:py-28 bg-[#F9F8F6] border-b border-[#E8E6E1] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-16 reveal-on-scroll">
           <div className="inline-flex items-center gap-2.5 mb-3">
             <span className="w-6 h-px bg-[#DEA43E]" />
             <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
@@ -31,7 +31,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
         {/* 3 Pillars Comparison Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Card 1: Virgin Hair */}
-          <div className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] shadow-xs flex flex-col justify-between">
+          <div className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] shadow-xs flex flex-col justify-between luxury-hover reveal-on-scroll">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[9.5px] font-display uppercase tracking-[0.22em] px-2.5 py-0.5 rounded-[1px] bg-[#F4F3EF] text-[#0D0D0D] font-semibold">
@@ -63,7 +63,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
           </div>
 
           {/* Card 2: Lux Hair (Flagship Atelier Card) */}
-          <div className="bg-[#0D0D0D] text-[#FFFFFF] rounded-[2px] p-8 border-2 border-[#DEA43E] shadow-xl flex flex-col justify-between relative transform md:-translate-y-2">
+          <div className="bg-[#0D0D0D] text-[#FFFFFF] rounded-[2px] p-8 border-2 border-[#DEA43E] shadow-xl flex flex-col justify-between relative transform md:-translate-y-2 reveal-on-scroll delay-150">
             {/* Top Recommended Tag */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#DEA43E] text-[#0D0D0D] text-[9.5px] font-display uppercase tracking-[0.25em] px-4 py-1 rounded-[1px] font-bold shadow-md">
               {lang === 'de' ? 'UNSERE FLAGSHIP QUALITÄT' : 'OUR CROWN ATELIER GRADE'}
@@ -100,7 +100,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
           </div>
 
           {/* Card 3: HD Lace */}
-          <div className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] shadow-xs flex flex-col justify-between">
+          <div className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] shadow-xs flex flex-col justify-between luxury-hover reveal-on-scroll delay-300">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[9.5px] font-display uppercase tracking-[0.22em] px-2.5 py-0.5 rounded-[1px] bg-[#FDF9F0] text-[#9E6F1E] border border-[#DEA43E]/40 font-semibold">
@@ -133,7 +133,7 @@ export default function HairGuide({ lang, t }: HairGuideProps) {
         </div>
 
         {/* Studio Craftsmanship Feature */}
-        <div className="mt-16 bg-[#FFFFFF] rounded-[2px] p-8 sm:p-10 border border-[#E8E6E1] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-xs">
+        <div className="mt-16 bg-[#FFFFFF] rounded-[2px] p-8 sm:p-10 border border-[#E8E6E1] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-xs reveal-on-scroll">
           <div className="lg:col-span-7">
             <span className="text-[10px] font-display uppercase tracking-[0.25em] text-[#DEA43E] font-bold block mb-2">
               {lang === 'de' ? 'ATELIER-EINBLICK' : 'ATELIER SPOTLIGHT'}

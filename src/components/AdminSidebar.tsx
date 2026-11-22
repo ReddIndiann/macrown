@@ -1,12 +1,13 @@
 import type { Lang } from '../data';
 
-export type AdminTab = 'inventory' | 'orders' | 'analytics' | 'categories' | 'settings';
+export type AdminTab = 'inventory' | 'orders' | 'content' | 'analytics' | 'categories' | 'settings';
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
   setActiveTab: (tab: AdminTab) => void;
   productsCount: number;
   ordersCount?: number;
+  faqsCount?: number;
   lowStockCount: number;
   outOfStockCount: number;
   currentUserEmail?: string | null;
@@ -24,6 +25,7 @@ export default function AdminSidebar({
   setActiveTab,
   productsCount,
   ordersCount,
+  faqsCount,
   lowStockCount,
   outOfStockCount,
   currentUserEmail,
@@ -71,6 +73,23 @@ export default function AdminSidebar({
       ),
       badge: ordersCount !== undefined ? ordersCount : undefined,
       badgeColor: 'bg-[#DEA43E]/20 text-[#DEA43E] border border-[#DEA43E]/40 font-bold',
+    },
+    {
+      id: 'content' as AdminTab,
+      labelDe: 'Knowledge Base & CMS',
+      labelEn: 'Knowledge Base & CMS',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.7}
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          />
+        </svg>
+      ),
+      badge: faqsCount !== undefined ? `${faqsCount} FAQs` : undefined,
+      badgeColor: 'bg-white/10 text-white/90',
     },
     {
       id: 'analytics' as AdminTab,
