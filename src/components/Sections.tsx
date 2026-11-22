@@ -6,60 +6,60 @@ export function Testimonials({ t }: { t: typeof LANG.de }) {
   const sec = t.testimonialsSection;
 
   return (
-    <section id="testimonials" className="py-20 lg:py-28 bg-[#FFFFFF] border-b border-[#E8E6E1]">
+    <section id="testimonials" className="py-12 sm:py-20 lg:py-28 bg-[#FFFFFF] border-b border-[#E8E6E1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
-          <div className="inline-flex items-center gap-2.5 mb-3">
-            <span className="w-6 h-px bg-[#DEA43E]" />
-            <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-16 reveal-on-scroll">
+          <div className="inline-flex items-center gap-2 sm:gap-2.5 mb-2 sm:mb-3">
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
+            <span className="text-[9.5px] sm:text-[11px] font-display tracking-[0.24em] sm:tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
               {sec.badge}
             </span>
-            <span className="w-6 h-px bg-[#DEA43E]" />
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl text-[#0D0D0D] font-normal tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#0D0D0D] font-normal tracking-tight">
             {sec.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#666666] font-light">
+          <p className="mt-2 sm:mt-3 text-xs sm:text-base text-[#666666] font-light">
             {sec.sub}
           </p>
         </div>
 
         {/* Testimonials 3-Card Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           {REAL_REVIEWS.map((rev, index) => (
             <div
               key={index}
-              className="bg-[#FFFFFF] rounded-[2px] p-8 border border-[#E8E6E1] flex flex-col justify-between shadow-xs luxury-hover reveal-on-scroll"
+              className="bg-[#FFFFFF] rounded-[2px] p-5 sm:p-8 border border-[#E8E6E1] flex flex-col justify-between shadow-xs luxury-hover reveal-on-scroll"
               style={{ transitionDelay: `${index * 120}ms` }}
             >
               <div>
                 {/* 5 Warm Gold Stars */}
-                <div className="flex items-center gap-1 text-[#DEA43E] text-sm mb-4">
+                <div className="flex items-center gap-1 text-[#DEA43E] text-xs sm:text-sm mb-3 sm:mb-4">
                   {'★'.repeat(rev.stars)}
                 </div>
                 {/* Quote */}
-                <blockquote className="font-serif text-base text-[#0D0D0D] leading-relaxed italic mb-6">
+                <blockquote className="font-serif text-sm sm:text-base text-[#0D0D0D] leading-relaxed italic mb-4 sm:mb-6">
                   “{rev.quote}”
                 </blockquote>
               </div>
 
               {/* Author & Product Info */}
-              <div className="pt-6 border-t border-[#E8E6E1] flex items-center gap-3.5">
+              <div className="pt-4 sm:pt-6 border-t border-[#E8E6E1] flex items-center gap-3">
                 <img
                   src={rev.avatar}
                   alt={rev.author}
-                  className="w-11 h-11 rounded-full object-cover ring-1 ring-[#DEA43E]/40"
+                  className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover ring-1 ring-[#DEA43E]/40"
                   loading="lazy"
                 />
                 <div>
-                  <h4 className="font-serif text-sm font-normal text-[#0D0D0D]">
+                  <h4 className="font-serif text-xs sm:text-sm font-normal text-[#0D0D0D]">
                     {rev.author}
                   </h4>
-                  <p className="text-[11px] text-[#7A7A7A] font-light">
+                  <p className="text-[10px] sm:text-[11px] text-[#7A7A7A] font-light">
                     {rev.city} • <span className="text-emerald-700 font-medium">{sec.verified}</span>
                   </p>
-                  <p className="text-[10px] text-[#DEA43E] font-mono mt-0.5">
+                  <p className="text-[9.5px] sm:text-[10px] text-[#DEA43E] font-mono mt-0.5">
                     {rev.product}
                   </p>
                 </div>
@@ -76,26 +76,26 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
   const consult = t.consultationSection;
 
   return (
-    <section className="py-16 bg-[#0D0D0D] text-white relative overflow-hidden border-b border-[#DEA43E]/20">
+    <section className="py-10 sm:py-16 bg-[#0D0D0D] text-white relative overflow-hidden border-b border-[#DEA43E]/20">
       <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[url('/images/MRDC2119.jpg')] bg-cover bg-center opacity-15 pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl reveal-on-scroll">
-          <span className="text-[10px] font-display uppercase tracking-[0.28em] text-[#DEA43E] font-bold block mb-3">
+          <span className="text-[9.5px] sm:text-[10px] font-display uppercase tracking-[0.24em] sm:tracking-[0.28em] text-[#DEA43E] font-bold block mb-2 sm:mb-3">
             {consult.badge}
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-normal text-white mb-4">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-normal text-white mb-2 sm:mb-4">
             {consult.title}
           </h2>
-          <p className="font-sans text-sm sm:text-base text-[#B5B5B5] font-light leading-relaxed mb-8">
+          <p className="font-sans text-xs sm:text-sm md:text-base text-[#B5B5B5] font-light leading-relaxed mb-6 sm:mb-8">
             {consult.sub}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <a
               href="https://wa.me/491728123222"
               target="_blank"
               rel="noreferrer"
-              className="btn-shimmer inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display uppercase tracking-[0.25em] font-bold rounded-[2px] hover:bg-[#C79237] transition-all shadow-md"
+              className="btn-shimmer inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#DEA43E] text-[#0D0D0D] text-[10px] sm:text-[11px] font-display uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold rounded-[2px] hover:bg-[#C79237] transition-all shadow-md"
             >
               <span>{consult.btn}</span>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +104,7 @@ export function ConsultationBanner({ t }: { t: typeof LANG.de }) {
             </a>
             <div className="flex items-center gap-2 text-xs text-white/80 justify-center sm:justify-start font-display tracking-wider">
               <span>Direktkontakt:</span>
-              <span className="font-mono text-[#DEA43E] font-medium">{consult.phone}</span>
+              <span className="font-mono text-[#DEA43E] font-medium text-xs sm:text-sm">{consult.phone}</span>
             </div>
           </div>
         </div>
@@ -136,27 +136,27 @@ export function FAQ({
       : faq.items;
 
   return (
-    <section id="faq" className="py-20 lg:py-28 bg-[#F9F8F6] border-b border-[#E8E6E1]">
+    <section id="faq" className="py-12 sm:py-20 lg:py-28 bg-[#F9F8F6] border-b border-[#E8E6E1]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 reveal-on-scroll">
-          <div className="inline-flex items-center gap-2.5 mb-3">
-            <span className="w-6 h-px bg-[#DEA43E]" />
-            <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
+        <div className="text-center mb-8 sm:mb-16 reveal-on-scroll">
+          <div className="inline-flex items-center gap-2 sm:gap-2.5 mb-2 sm:mb-3">
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
+            <span className="text-[9.5px] sm:text-[11px] font-display tracking-[0.24em] sm:tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
               {faq.badge}
             </span>
-            <span className="w-6 h-px bg-[#DEA43E]" />
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl text-[#0D0D0D] font-normal tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#0D0D0D] font-normal tracking-tight">
             {faq.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#666666] font-light">
+          <p className="mt-2 sm:mt-3 text-xs sm:text-base text-[#666666] font-light">
             {faq.sub}
           </p>
         </div>
 
         {/* Accordion List */}
-        <div className="space-y-3.5 reveal-on-scroll delay-150">
+        <div className="space-y-2.5 sm:space-y-3.5 reveal-on-scroll delay-150">
           {items.map((item, i) => {
             const isOpen = openIndex === i;
 
@@ -168,18 +168,18 @@ export function FAQ({
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="w-full flex justify-between items-center px-6 py-5 text-left hover:bg-[#FAF9F7] transition-colors focus:outline-none cursor-pointer"
+                  className="w-full flex justify-between items-center px-4 sm:px-6 py-3.5 sm:py-5 text-left hover:bg-[#FAF9F7] transition-colors focus:outline-none cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-serif text-lg font-normal text-[#0D0D0D] pr-4">
+                  <span className="font-serif text-sm sm:text-lg font-normal text-[#0D0D0D] pr-3 sm:pr-4">
                     {item.q}
                   </span>
                   <div
-                    className={`w-6 h-6 rounded-[2px] flex items-center justify-center shrink-0 border border-[#E8E6E1] transition-transform duration-300 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-[2px] flex items-center justify-center shrink-0 border border-[#E8E6E1] transition-transform duration-300 ${
                       isOpen ? 'rotate-180 bg-[#0D0D0D] text-[#DEA43E]' : 'text-[#7A7A7A]'
                     }`}
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -192,7 +192,7 @@ export function FAQ({
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-[#555555] font-light leading-relaxed border-t border-[#E8E6E1] bg-[#FDFDFD]">
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-1 text-xs sm:text-sm text-[#555555] font-light leading-relaxed border-t border-[#E8E6E1] bg-[#FDFDFD]">
                       <p>{item.a}</p>
                     </div>
                   </div>
@@ -233,35 +233,35 @@ export function Footer({
   const hours = atelierContent?.hours || f.hours;
 
   return (
-    <footer className="bg-[#0D0D0D] text-white pt-20 pb-12 border-t border-[#DEA43E]/20">
+    <footer className="bg-[#0D0D0D] text-white pt-12 sm:pt-20 pb-8 sm:pb-12 border-t border-[#DEA43E]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-16 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-12 pb-10 sm:pb-16 border-b border-white/10">
           {/* Brand Manifesto & Emblem */}
           <div className="lg:col-span-4">
-            <div className="flex items-center gap-3.5 mb-6">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 mb-4 sm:mb-6">
               <img
                 src="/images/macrown-light-logo.png"
                 alt="Macrown"
-                className="h-10 w-auto object-contain"
+                className="h-8 sm:h-10 w-auto object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
               />
               <div>
-                <span className="font-cinzel text-xl tracking-[0.24em] font-medium text-white block">
+                <span className="font-cinzel text-lg sm:text-xl tracking-[0.22em] sm:tracking-[0.24em] font-medium text-white block">
                   MACROWN
                 </span>
-                <span className="font-display text-[8.5px] tracking-[0.38em] text-[#DEA43E] uppercase block font-semibold mt-0.5">
+                <span className="font-display text-[7.5px] sm:text-[8.5px] tracking-[0.35em] sm:tracking-[0.38em] text-[#DEA43E] uppercase block font-semibold mt-0.5">
                   HAIR ATELIER
                 </span>
               </div>
             </div>
 
-            <p className="text-xs text-[#B5B5B5] leading-relaxed mb-6 font-light max-w-sm">
+            <p className="text-xs text-[#B5B5B5] leading-relaxed mb-4 sm:mb-6 font-light max-w-sm">
               {aboutText}
             </p>
 
-            <blockquote className="font-serif italic text-sm text-[#DEA43E] border-l border-[#DEA43E] pl-3 py-1">
+            <blockquote className="font-serif italic text-xs sm:text-sm text-[#DEA43E] border-l border-[#DEA43E] pl-3 py-1">
               „{tagline}“
             </blockquote>
           </div>

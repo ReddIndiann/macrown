@@ -120,13 +120,13 @@ export default function ShopPage({
 
           {/* Heading */}
           <div className="max-w-3xl">
-            <span className="text-[10px] sm:text-xs font-display tracking-[0.3em] uppercase text-[#DEA43E] font-semibold block mb-2 drop-shadow-sm">
+            <span className="text-[9px] sm:text-xs font-display tracking-[0.24em] sm:tracking-[0.3em] uppercase text-[#DEA43E] font-semibold block mb-1.5 sm:mb-2 drop-shadow-sm">
               {lang === 'de' ? 'HAUTE COIFFURE KATALOG • 100% ECHTHAAR' : 'HAUTE COIFFURE CATALOG • 100% HUMAN HAIR'}
             </span>
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl !text-white font-normal tracking-[0.03em] leading-tight mb-4 drop-shadow-md">
+            <h1 className="font-serif text-2xl sm:text-5xl lg:text-6xl !text-white font-normal tracking-[0.03em] leading-tight mb-2 sm:mb-4 drop-shadow-md">
               {lang === 'de' ? 'Die Atelier Kollektion' : 'The Atelier Collection'}
             </h1>
-            <p className="font-sans text-xs sm:text-sm !text-white/90 font-light leading-relaxed max-w-2xl">
+            <p className="font-sans text-xs sm:text-sm !text-white/90 font-light leading-relaxed max-w-2xl line-clamp-2 sm:line-clamp-none">
               {lang === 'de'
                 ? 'Handverlesenes, 100% chemiefreies Rohhaar & HD-Lace Perücken aus unserer vietnamesischen Partnermanufaktur. Höchste Schuppenschicht-Intaktheit für unvergleichlichen Seidenglanz.'
                 : 'Masterfully curated, 100% non-chemical raw hair and HD lace wigs directly from our atelier in Vietnam. Intact cuticles for incomparable natural silk sheen.'}
@@ -134,7 +134,7 @@ export default function ShopPage({
           </div>
 
           {/* Category Quick Selector Pills */}
-          <div className="mt-8 flex flex-wrap items-center gap-2">
+          <div className="mt-5 sm:mt-8 flex flex-wrap items-center gap-1.5 sm:gap-2">
             {categories.map((cat) => {
               const isActive = selectedCategory === cat.id;
               const count = cat.id === 'all'
@@ -146,14 +146,14 @@ export default function ShopPage({
                   key={cat.id}
                   type="button"
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3.5 py-2 text-xs font-display uppercase tracking-wider rounded-[2px] transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[10.5px] sm:text-xs font-display uppercase tracking-wider rounded-[2px] transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer ${
                     isActive
                       ? 'bg-[#DEA43E] text-[#0D0D0D] font-bold shadow-md'
                       : 'bg-white/10 text-white hover:bg-white/20 border border-white/15'
                   }`}
                 >
                   <span>{lang === 'de' ? cat.labelDe : cat.labelEn}</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-[1px] ${
+                  <span className={`text-[9.5px] sm:text-[10px] font-mono px-1.5 py-0.2 rounded-[1px] ${
                     isActive ? 'bg-[#0D0D0D] text-[#DEA43E]' : 'bg-black/40 text-white/70'
                   }`}>
                     {count}
@@ -283,12 +283,12 @@ export default function ShopPage({
       </div>
 
       {/* PRODUCTS MAIN STAGE */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-14">
         {filteredProducts.length > 0 ? (
           <div
-            className={`grid grid-cols-1 sm:grid-cols-2 ${
+            className={`grid grid-cols-2 ${
               gridCols === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
-            } gap-6 lg:gap-8`}
+            } gap-3 sm:gap-6 lg:gap-8`}
           >
             {filteredProducts.map((product) => (
               <ProductCard

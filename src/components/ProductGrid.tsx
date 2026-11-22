@@ -49,29 +49,29 @@ export default function ProductGrid({
   });
 
   return (
-    <section id="shop" className="py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#E8E6E1]">
+    <section id="shop" className="py-12 sm:py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#E8E6E1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll">
-          <div className="inline-flex items-center gap-2.5 mb-3">
-            <span className="w-6 h-px bg-[#DEA43E]" />
-            <span className="text-[10px] sm:text-[11px] font-display tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 reveal-on-scroll">
+          <div className="inline-flex items-center gap-2 sm:gap-2.5 mb-2 sm:mb-3">
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
+            <span className="text-[9.5px] sm:text-[11px] font-display tracking-[0.24em] sm:tracking-[0.28em] text-[#DEA43E] font-semibold uppercase">
               {t.shopSection.badge}
             </span>
-            <span className="w-6 h-px bg-[#DEA43E]" />
+            <span className="w-4 sm:w-6 h-px bg-[#DEA43E]" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl text-[#0D0D0D] font-normal tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#0D0D0D] font-normal tracking-tight">
             {t.shopSection.title}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#666666] font-light">
+          <p className="mt-2 sm:mt-3 text-xs sm:text-base text-[#666666] font-light">
             {t.shopSection.sub}
           </p>
         </div>
 
         {/* Filter Navigation Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-8 mb-8 border-b border-[#E8E6E1]">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 pb-6 sm:pb-8 mb-6 sm:mb-8 border-b border-[#E8E6E1]">
           {/* Category Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             {[
               { id: 'all', label: t.shopSection.filters.all },
               { id: 'wigs', label: t.shopSection.filters.wigs },
@@ -83,7 +83,7 @@ export default function ProductGrid({
                 key={tab.id}
                 type="button"
                 onClick={() => onSelectCategory(tab.id)}
-                className={`px-4 py-2 rounded-[2px] text-[11px] font-display uppercase tracking-[0.2em] font-medium transition-all ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-[2px] text-[9.5px] sm:text-[11px] font-display uppercase tracking-[0.16em] sm:tracking-[0.2em] font-medium transition-all ${
                   activeCategory === tab.id
                     ? 'bg-[#0D0D0D] text-white shadow-xs'
                     : 'bg-[#FFFFFF] text-[#4A4A4A] hover:text-[#0D0D0D] border border-[#E8E6E1] hover:border-[#0D0D0D]'
@@ -95,13 +95,13 @@ export default function ProductGrid({
           </div>
 
           {/* Sub Filters: Hair Grade & Sorting */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-center sm:justify-end">
             {/* Hair Grade Pill Filter */}
-            <div className="flex items-center bg-[#F9F8F6] p-0.5 rounded-[2px] border border-[#E8E6E1] text-[10.5px] font-display uppercase tracking-wider font-semibold">
+            <div className="flex items-center bg-[#F9F8F6] p-0.5 rounded-[2px] border border-[#E8E6E1] text-[9.5px] sm:text-[10.5px] font-display uppercase tracking-wider font-semibold">
               <button
                 type="button"
                 onClick={() => setHairTypeFilter('all')}
-                className={`px-2.5 py-1 rounded-[1px] transition-all ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[1px] transition-all ${
                   hairTypeFilter === 'all'
                     ? 'bg-[#0D0D0D] text-white'
                     : 'text-[#666666] hover:text-[#0D0D0D]'
@@ -112,7 +112,7 @@ export default function ProductGrid({
               <button
                 type="button"
                 onClick={() => setHairTypeFilter('Lux Hair')}
-                className={`px-2.5 py-1 rounded-[1px] transition-all ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[1px] transition-all ${
                   hairTypeFilter === 'Lux Hair'
                     ? 'bg-[#DEA43E] text-[#0D0D0D]'
                     : 'text-[#666666] hover:text-[#0D0D0D]'
@@ -123,7 +123,7 @@ export default function ProductGrid({
               <button
                 type="button"
                 onClick={() => setHairTypeFilter('Virgin Hair')}
-                className={`px-2.5 py-1 rounded-[1px] transition-all ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[1px] transition-all ${
                   hairTypeFilter === 'Virgin Hair'
                     ? 'bg-[#0D0D0D] text-white'
                     : 'text-[#666666] hover:text-[#0D0D0D]'
@@ -137,20 +137,20 @@ export default function ProductGrid({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-[#FFFFFF] border border-[#E8E6E1] rounded-[2px] px-3 py-1.5 text-[11px] font-display uppercase tracking-wider text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
+              className="bg-[#FFFFFF] border border-[#E8E6E1] rounded-[2px] px-2 sm:px-3 py-1 sm:py-1.5 text-[9.5px] sm:text-[11px] font-display uppercase tracking-wider text-[#0D0D0D] focus:outline-none focus:border-[#DEA43E]"
             >
               <option value="featured">{lang === 'de' ? 'Empfohlen' : 'Featured'}</option>
-              <option value="price-asc">{lang === 'de' ? 'Preis: Aufsteigend' : 'Price: Low to High'}</option>
-              <option value="price-desc">{lang === 'de' ? 'Preis: Absteigend' : 'Price: High to Low'}</option>
-              <option value="rating">{lang === 'de' ? 'Beste Bewertung' : 'Top Rated'}</option>
+              <option value="price-asc">{lang === 'de' ? 'Preis: Auf' : 'Price: Low'}</option>
+              <option value="price-desc">{lang === 'de' ? 'Preis: Ab' : 'Price: High'}</option>
+              <option value="rating">{lang === 'de' ? 'Bewertung' : 'Top Rated'}</option>
             </select>
           </div>
         </div>
 
-        {/* Product Cards Grid */}
+        {/* Product Cards Grid: 2 Columns on Mobile */}
         {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-sm text-[#7A7A7A] font-light">
+          <div className="text-center py-12 sm:py-16">
+            <p className="text-xs sm:text-sm text-[#7A7A7A] font-light">
               {lang === 'de'
                 ? 'Keine Produkte gefunden. Bitte wähle eine andere Filterkombination.'
                 : 'No products match the selected criteria.'}
@@ -158,12 +158,12 @@ export default function ProductGrid({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 items-stretch">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-7 items-stretch">
               {filtered.slice(0, previewLimit).map((product, idx) => (
                 <div
                   key={product.id}
                   className="reveal-on-scroll h-full"
-                  style={{ transitionDelay: `${idx * 120}ms` }}
+                  style={{ transitionDelay: `${idx * 100}ms` }}
                 >
                   <ProductCard
                     product={product}

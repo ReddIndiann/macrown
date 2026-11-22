@@ -114,7 +114,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
   return (
     <section id="hero" className="relative w-full bg-[#0D0D0D] text-white overflow-hidden border-b border-[#E8E6E1]">
       {/* CINEMATIC FULL-BLEED STAGE */}
-      <div className="relative w-full min-h-[85vh] lg:min-h-[92vh] flex items-center justify-center">
+      <div className="relative w-full min-h-[75vh] sm:min-h-[85vh] lg:min-h-[92vh] flex items-center justify-center">
         {/* Background Visual Layer: Seamless Crossfade Stack */}
         {slides.map((slide, idx) => {
           const isActive = idx === currentSlide;
@@ -157,20 +157,20 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
 
         {/* Video Audio/Play Controls (when Slide 0 is active) */}
         {activeSlide.type === 'video' && (
-          <div className="absolute bottom-6 right-4 sm:right-8 z-30 flex items-center gap-2">
+          <div className="absolute bottom-4 right-3 sm:bottom-6 sm:right-8 z-30 flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={togglePlay}
-              className="p-2 sm:p-2.5 rounded-[2px] bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white/90 hover:text-[#DEA43E] transition-all text-xs"
+              className="p-1.5 sm:p-2.5 rounded-[2px] bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white/90 hover:text-[#DEA43E] transition-all text-xs"
               aria-label={isPlaying ? 'Video pausieren' : 'Video abspielen'}
               title={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                 </svg>
               ) : (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               )}
@@ -179,16 +179,16 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
             <button
               type="button"
               onClick={toggleSound}
-              className="p-2 sm:p-2.5 rounded-[2px] bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white/90 hover:text-[#DEA43E] transition-all text-xs flex items-center gap-1.5"
+              className="p-1.5 sm:p-2.5 rounded-[2px] bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white/90 hover:text-[#DEA43E] transition-all text-xs flex items-center gap-1.5"
               aria-label={isMuted ? 'Ton einschalten' : 'Stummschalten'}
               title={isMuted ? 'Ton an' : 'Stumm'}
             >
               {isMuted ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-7.5l-4.5 4.5H2.25v6h2.25l4.5 4.5V4.5z" />
                 </svg>
               ) : (
-                <svg className="w-4 h-4 text-[#DEA43E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#DEA43E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.5-4.5v16.5l-4.5-4.5H2.25v-7.5h4.5z" />
                 </svg>
               )}
@@ -203,7 +203,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
         <button
           type="button"
           onClick={prevSlide}
-          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-[2px] bg-black/40 hover:bg-[#DEA43E] text-white hover:text-[#0D0D0D] border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg"
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-10 sm:h-10 rounded-[2px] bg-black/40 hover:bg-[#DEA43E] text-white hover:text-[#0D0D0D] border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg text-xs sm:text-base"
           aria-label="Vorherige Kampagne"
         >
           ‹
@@ -211,7 +211,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
         <button
           type="button"
           onClick={nextSlide}
-          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-[2px] bg-black/40 hover:bg-[#DEA43E] text-white hover:text-[#0D0D0D] border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg"
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-10 sm:h-10 rounded-[2px] bg-black/40 hover:bg-[#DEA43E] text-white hover:text-[#0D0D0D] border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg text-xs sm:text-base"
           aria-label="Nächste Kampagne"
         >
           ›
@@ -220,41 +220,41 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
         {/* Centered Editorial Content with smooth animated transition per slide */}
         <div
           key={currentSlide}
-          className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center flex flex-col items-center animate-luxury-fade"
+          className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 text-center flex flex-col items-center animate-luxury-fade"
         >
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-3 mb-5 sm:mb-6">
-            <span className="w-6 sm:w-10 h-px bg-[#DEA43E]" />
-            <span className="text-[10px] sm:text-xs font-display tracking-[0.32em] text-[#DEA43E] font-semibold uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+          <div className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-6">
+            <span className="w-4 sm:w-10 h-px bg-[#DEA43E]" />
+            <span className="text-[9px] sm:text-xs font-display tracking-[0.24em] sm:tracking-[0.32em] text-[#DEA43E] font-semibold uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               {lang === 'de' ? activeSlide.eyebrowDe : activeSlide.eyebrowEn}
             </span>
-            <span className="w-6 sm:w-10 h-px bg-[#DEA43E]" />
+            <span className="w-4 sm:w-10 h-px bg-[#DEA43E]" />
           </div>
 
           {/* Grand Brand Headline */}
-          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.5rem] !text-white font-normal tracking-[0.06em] leading-[1.04] mb-3 select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h1 className="font-serif text-3xl sm:text-6xl md:text-8xl lg:text-[6.5rem] !text-white font-normal tracking-[0.05em] sm:tracking-[0.06em] leading-[1.08] sm:leading-[1.04] mb-2 sm:mb-3 select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             {activeSlide.title}
           </h1>
 
           {/* Golden Hairline Divider */}
-          <div className="w-12 h-[2px] bg-[#DEA43E] my-3 sm:my-4 shadow-sm" />
+          <div className="w-8 sm:w-12 h-[1.5px] sm:h-[2px] bg-[#DEA43E] my-2 sm:my-4 shadow-sm" />
 
           {/* Tagline */}
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl !text-[#DEA43E] font-normal italic tracking-wide mb-5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+          <h2 className="font-serif text-base sm:text-2xl md:text-3xl lg:text-4xl !text-[#DEA43E] font-normal italic tracking-wide mb-3 sm:mb-5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
             „{lang === 'de' ? activeSlide.taglineDe : activeSlide.taglineEn}“
           </h2>
 
           {/* Subtitle description */}
-          <p className="font-sans text-sm sm:text-base md:text-lg !text-white max-w-2xl mx-auto font-normal leading-relaxed mb-9 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+          <p className="font-sans text-xs sm:text-base md:text-lg !text-white max-w-xl sm:max-w-2xl mx-auto font-normal leading-relaxed mb-6 sm:mb-9 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] line-clamp-3 sm:line-clamp-none">
             {lang === 'de' ? activeSlide.subDe : activeSlide.subEn}
           </p>
 
           {/* Call to Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
             <a
               href="#shop"
               onClick={handleShopClick}
-              className="btn-shimmer w-full sm:w-auto inline-flex items-center justify-center px-9 py-4 bg-[#DEA43E] text-[#0D0D0D] text-[11px] font-display font-bold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-[0_6px_24px_rgba(0,0,0,0.5)] group cursor-pointer"
+              className="btn-shimmer w-full sm:w-auto inline-flex items-center justify-center px-7 sm:px-9 py-3 sm:py-4 bg-[#DEA43E] text-[#0D0D0D] text-[10px] sm:text-[11px] font-display font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] transition-all duration-300 shadow-[0_6px_24px_rgba(0,0,0,0.5)] group cursor-pointer"
             >
               <span>{t.hero.shopBtn}</span>
               <svg
@@ -269,7 +269,7 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
 
             <a
               href="#guide"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-black/60 backdrop-blur-md text-white border border-white/60 text-[11px] font-display font-semibold uppercase tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] hover:border-white transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-black/60 backdrop-blur-md text-white border border-white/60 text-[10px] sm:text-[11px] font-display font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded-[2px] hover:bg-white hover:text-[#0D0D0D] hover:border-white transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             >
               <span>{t.hero.guideBtn}</span>
             </a>
@@ -278,23 +278,23 @@ export default function Hero({ lang, t, onNavigateShop }: HeroProps) {
       </div>
 
       {/* 4 PILLARS TRUST BAR DIRECTLY BELOW HERO */}
-      <div className="bg-[#FFFFFF] border-t border-[#E8E6E1] py-8 text-[#0D0D0D]">
+      <div className="bg-[#FFFFFF] border-t border-[#E8E6E1] py-5 sm:py-8 text-[#0D0D0D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-6 lg:gap-8">
             {t.trust.map((item, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 reveal-on-scroll"
+                className="flex items-start gap-2.5 sm:gap-3 reveal-on-scroll"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="w-8 h-8 rounded-[2px] border border-[#DEA43E]/40 bg-[#FDF9F0] flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-[#DEA43E] text-xs font-serif font-bold">✦</span>
+                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-[2px] border border-[#DEA43E]/40 bg-[#FDF9F0] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[#DEA43E] text-[10px] sm:text-xs font-serif font-bold">✦</span>
                 </div>
                 <div>
-                  <h4 className="text-[11px] font-display uppercase tracking-[0.18em] font-semibold text-[#0D0D0D]">
+                  <h4 className="text-[9.5px] sm:text-[11px] font-display uppercase tracking-[0.16em] sm:tracking-[0.18em] font-semibold text-[#0D0D0D]">
                     {item.title}
                   </h4>
-                  <p className="text-xs text-[#666666] mt-0.5 font-light leading-relaxed">
+                  <p className="text-[10px] sm:text-xs text-[#666666] mt-0.5 font-light leading-normal sm:leading-relaxed">
                     {item.desc}
                   </p>
                 </div>

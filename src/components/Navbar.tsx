@@ -123,20 +123,20 @@ export default function Navbar({
       {/* MAIN STICKY HEADER */}
       <header className="sticky top-0 z-40 bg-[#FFFFFF]/95 backdrop-blur-md border-b border-[#E8E6E1] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
+          <div className="flex items-center justify-between h-14 sm:h-20">
             {/* LEFT SECTION */}
-            <div className="flex items-center w-20 sm:w-24 lg:w-auto">
+            <div className="flex items-center w-16 sm:w-24 lg:w-auto">
               {/* Mobile Menu Opener Button */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 -ml-2 text-[#0D0D0D] hover:text-[#DEA43E] transition-colors focus:outline-none flex items-center gap-2 group"
+                className="lg:hidden p-1.5 -ml-1 text-[#0D0D0D] hover:text-[#DEA43E] transition-colors focus:outline-none flex items-center gap-1.5 group"
                 aria-label="Menü öffnen"
               >
-                <div className="w-5 h-3.5 flex flex-col justify-between">
-                  <span className="w-5 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
-                  <span className="w-3.5 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
-                  <span className="w-5 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
+                <div className="w-4.5 h-3 flex flex-col justify-between">
+                  <span className="w-4.5 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
+                  <span className="w-3 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
+                  <span className="w-4.5 h-[1.5px] bg-[#0D0D0D] group-hover:bg-[#DEA43E] transition-colors"></span>
                 </div>
                 <span className="hidden sm:inline font-display text-[9px] uppercase tracking-[0.2em] font-semibold text-[#0D0D0D] group-hover:text-[#DEA43E] transition-colors">
                   Menü
@@ -180,21 +180,21 @@ export default function Navbar({
                 onClick={() => {
                   if (onNavigate) onNavigate('home');
                 }}
-                className="flex items-center gap-2.5 cursor-pointer text-left"
+                className="flex items-center gap-2 cursor-pointer text-left"
               >
                 <img
                   src="/images/logo-dark-3.png"
                   alt="Macrown Hair Logo"
-                  className="h-8 sm:h-9 w-auto object-contain"
+                  className="h-7 sm:h-9 w-auto object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
                 <div className="flex flex-col text-left">
-                  <span className="font-cinzel text-lg sm:text-xl tracking-[0.22em] font-medium text-[#0D0D0D] leading-none">
+                  <span className="font-cinzel text-base sm:text-xl tracking-[0.2em] sm:tracking-[0.22em] font-medium text-[#0D0D0D] leading-none">
                     MACROWN
                   </span>
-                  <span className="font-display text-[7.5px] tracking-[0.35em] text-[#DEA43E] uppercase font-semibold">
+                  <span className="font-display text-[7px] sm:text-[7.5px] tracking-[0.3em] sm:tracking-[0.35em] text-[#DEA43E] uppercase font-semibold">
                     HAIR ATELIER
                   </span>
                 </div>
@@ -257,15 +257,15 @@ export default function Navbar({
             </nav>
 
             {/* RIGHT SECTION: Cart Drawer Trigger with Badge */}
-            <div className="flex items-center justify-end w-20 sm:w-24 lg:w-auto">
+            <div className="flex items-center justify-end w-16 sm:w-24 lg:w-auto">
               <button
                 type="button"
                 onClick={onOpenCart}
-                className="relative p-2 text-[#0D0D0D] hover:text-[#DEA43E] transition-colors focus:outline-none flex items-center gap-2 group"
+                className="relative p-1.5 sm:p-2 text-[#0D0D0D] hover:text-[#DEA43E] transition-colors focus:outline-none flex items-center gap-2 group"
                 aria-label="Einkaufstasche öffnen"
               >
                 <div className="relative">
-                  <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -274,7 +274,7 @@ export default function Navbar({
                     />
                   </svg>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#DEA43E] text-[#0D0D0D] text-[9px] font-bold font-mono shadow-xs">
+                    <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] sm:h-4 sm:min-w-[16px] px-1 items-center justify-center rounded-full bg-[#DEA43E] text-[#0D0D0D] text-[8.5px] sm:text-[9px] font-bold font-mono shadow-xs">
                       {cartCount}
                     </span>
                   )}
