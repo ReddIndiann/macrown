@@ -115,16 +115,22 @@ export default function App() {
     }
   };
 
+  // Check if current URL represents admin
+  const isCurrentlyAdmin = () => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+    return (
+      hash === '#admin' ||
+      hash.startsWith('#admin/') ||
+      hash.startsWith('#admin?') ||
+      path === '/admin' ||
+      path.startsWith('/admin/')
+    );
+  };
+
   // Admin View state (checks #admin hash or /admin path)
-  const [isAdminView, setIsAdminView] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return (
-        window.location.hash === '#admin' ||
-        window.location.pathname === '/admin'
-      );
-    }
-    return false;
-  });
+  const [isAdminView, setIsAdminView] = useState<boolean>(isCurrentlyAdmin);
 
   // Current page state ('home' vs 'shop')
   const [currentPage, setCurrentPage] = useState<'home' | 'shop'>(() => {
@@ -139,11 +145,11 @@ export default function App() {
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#admin') {
+      if (isCurrentlyAdmin()) {
         setIsAdminView(true);
       } else {
         setIsAdminView(false);
-        if (window.location.hash === '#shop') {
+        if (window.location.hash === '#shop' || window.location.pathname === '/shop') {
           setCurrentPage('shop');
         } else {
           setCurrentPage('home');
@@ -158,6 +164,9 @@ export default function App() {
     setIsAdminView(false);
     setCurrentPage(page);
     window.location.hash = page === 'home' ? '#home' : '#shop';
+    if (window.location.pathname.startsWith('/admin')) {
+      window.history.pushState(null, '', '/');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -172,14 +181,17 @@ export default function App() {
 
   const handleExitAdmin = () => {
     setIsAdminView(false);
-    if (window.location.hash === '#admin') {
-      window.history.pushState(null, '', window.location.pathname);
+    setCurrentPage('home');
+    if (window.location.pathname.startsWith('/admin')) {
+      window.history.pushState(null, '', '/');
     }
+    window.location.hash = '#home';
   };
 
   const handleOpenAdmin = () => {
     setIsAdminView(true);
-    window.location.hash = '#admin';
+    const lastTab = (typeof window !== 'undefined' && localStorage.getItem('macrown_admin_tab')) || 'inventory';
+    window.location.hash = `#admin/${lastTab}`;
   };
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {

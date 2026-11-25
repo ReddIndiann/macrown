@@ -1,6 +1,6 @@
-import type { Lang } from '../data';
+import type { Lang, AdminRole } from '../data';
 
-export type AdminTab = 'inventory' | 'orders' | 'content' | 'analytics' | 'categories' | 'settings';
+export type AdminTab = 'inventory' | 'orders' | 'mail' | 'content' | 'analytics' | 'categories' | 'config' | 'team' | 'settings';
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -11,6 +11,7 @@ interface AdminSidebarProps {
   lowStockCount: number;
   outOfStockCount: number;
   currentUserEmail?: string | null;
+  adminRole?: AdminRole;
   lang: Lang;
   setLang: (lang: Lang) => void;
   onExitAdmin: () => void;
@@ -29,6 +30,7 @@ export default function AdminSidebar({
   lowStockCount,
   outOfStockCount,
   currentUserEmail,
+  adminRole = 'admin',
   lang,
   setLang,
   onExitAdmin,
@@ -73,6 +75,23 @@ export default function AdminSidebar({
       ),
       badge: ordersCount !== undefined ? ordersCount : undefined,
       badgeColor: 'bg-[#DEA43E]/20 text-[#DEA43E] border border-[#DEA43E]/40 font-bold',
+    },
+    {
+      id: 'mail' as AdminTab,
+      labelDe: 'E-Mail & Direktversand',
+      labelEn: 'Mail & Quick Dispatch',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.7}
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          />
+        </svg>
+      ),
+      badge: 'Relay Live',
+      badgeColor: 'bg-emerald-950/80 text-emerald-400 border border-emerald-700/50 font-bold text-[9.5px]',
     },
     {
       id: 'content' as AdminTab,
@@ -126,9 +145,43 @@ export default function AdminSidebar({
       badgeColor: '',
     },
     {
+      id: 'config' as AdminTab,
+      labelDe: 'E-Mail & System-Config',
+      labelEn: 'Email & System Config',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.7}
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+          />
+        </svg>
+      ),
+      badge: adminRole === 'super_admin' ? 'Super Admin' : '🔒 Locked',
+      badgeColor: adminRole === 'super_admin' ? 'bg-[#DEA43E]/20 text-[#DEA43E] border border-[#DEA43E]/40 font-bold' : 'bg-white/10 text-white/50',
+    },
+    {
+      id: 'team' as AdminTab,
+      labelDe: 'Admin-Team & Rollen',
+      labelEn: 'Admin Team & Roles',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.7}
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+      ),
+      badge: adminRole === 'super_admin' ? 'RBAC' : '🔒 Locked',
+      badgeColor: adminRole === 'super_admin' ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/50' : 'bg-white/10 text-white/50',
+    },
+    {
       id: 'settings' as AdminTab,
-      labelDe: 'Cloud & DMS',
-      labelEn: 'Cloud & DMS',
+      labelDe: 'Cloud & DMS Status',
+      labelEn: 'Cloud & DMS Status',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -145,8 +198,8 @@ export default function AdminSidebar({
           />
         </svg>
       ),
-      badge: 'Cloudinary (Free)',
-      badgeColor: 'bg-emerald-950 text-emerald-400 font-mono text-[9px] border border-emerald-600/40',
+      badge: adminRole === 'super_admin' ? 'Super Admin' : '🔒 Locked',
+      badgeColor: adminRole === 'super_admin' ? 'bg-[#DEA43E]/20 text-[#DEA43E] border border-[#DEA43E]/40 font-bold' : 'bg-white/10 text-white/50',
     },
   ];
 
@@ -167,16 +220,32 @@ export default function AdminSidebar({
             </span>
           </div>
 
-          <div className="p-2.5 bg-[#141414] border border-white/10 rounded-[2px] flex items-center justify-between">
-            <div className="flex items-center gap-2 truncate">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="text-[11px] font-mono text-white/80 truncate">
-                {currentUserEmail || 'admin@macrown.org'}
+          <div className="p-2.5 bg-[#141414] border border-white/10 rounded-[2px] space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 truncate">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                <span className="text-[11px] font-mono text-white/80 truncate">
+                  {currentUserEmail || 'admin@macrown.org'}
+                </span>
+              </div>
+              <span className="text-[9px] font-display uppercase tracking-widest text-emerald-400 font-semibold shrink-0">
+                {lang === 'de' ? 'Aktiv' : 'Live'}
               </span>
             </div>
-            <span className="text-[9px] font-display uppercase tracking-widest text-emerald-400 font-semibold shrink-0">
-              {lang === 'de' ? 'Aktiv' : 'Live'}
-            </span>
+            <div className="flex items-center justify-between pt-1 border-t border-white/5">
+              <span className="text-[9.5px] font-display uppercase tracking-wider text-white/40">
+                {lang === 'de' ? 'Rolle:' : 'Role:'}
+              </span>
+              {adminRole === 'super_admin' ? (
+                <span className="text-[9px] font-display font-bold uppercase tracking-wider text-[#DEA43E] bg-[#DEA43E]/15 px-1.5 py-0.5 rounded-[1px] border border-[#DEA43E]/40 flex items-center gap-1">
+                  ★ Super Admin
+                </span>
+              ) : (
+                <span className="text-[9px] font-display font-semibold uppercase tracking-wider text-slate-300 bg-white/10 px-1.5 py-0.5 rounded-[1px] border border-white/20">
+                  Admin (Staff)
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

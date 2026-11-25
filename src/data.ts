@@ -862,3 +862,80 @@ export const LANG = {
     },
   },
 };
+
+export type AdminRole = 'super_admin' | 'admin';
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: AdminRole;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  lastLogin?: string;
+}
+
+export interface EmailConfig {
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPass: string;
+  senderName: string;
+  senderEmail: string;
+  alertRecipient: string;
+  encryption: 'ssl' | 'tls' | 'none';
+  enableCustomerOrderReceipt: boolean;
+  enableAdminNewOrderAlert: boolean;
+  enableStockAlerts: boolean;
+}
+
+export const INITIAL_EMAIL_CONFIG: EmailConfig = {
+  smtpHost: 'mail.privateemail.com',
+  smtpPort: 465,
+  smtpUser: 'info@macrown.net',
+  smtpPass: 'Macrown@2026!',
+  senderName: 'Macrown Hair Atelier',
+  senderEmail: 'info@macrown.net',
+  alertRecipient: 'danielkojo005@gmail.com',
+  encryption: 'ssl',
+  enableCustomerOrderReceipt: true,
+  enableAdminNewOrderAlert: true,
+  enableStockAlerts: true,
+};
+
+export const INITIAL_ADMIN_USERS: AdminUser[] = [
+  {
+    id: 'admin-super-a',
+    name: 'Super Admin',
+    email: 'a@gmail.com',
+    role: 'super_admin',
+    createdAt: '2026-11-24T23:30:00.000Z',
+    status: 'active',
+  },
+  {
+    id: 'admin-1',
+    name: 'Daniel Kojo (Owner)',
+    email: 'danielkojo005@gmail.com',
+    role: 'super_admin',
+    createdAt: '2026-11-22T10:00:00.000Z',
+    status: 'active',
+    lastLogin: '2026-11-24T22:56:00.000Z',
+  },
+  {
+    id: 'admin-2',
+    name: 'Macrown Master Desk',
+    email: 'info@macrown.net',
+    role: 'super_admin',
+    createdAt: '2026-11-24T22:50:00.000Z',
+    status: 'active',
+  },
+  {
+    id: 'admin-3',
+    name: 'Atelier Staff',
+    email: 'staff@macrown.net',
+    role: 'admin',
+    createdAt: '2026-11-24T23:00:00.000Z',
+    status: 'active',
+  },
+];
+
